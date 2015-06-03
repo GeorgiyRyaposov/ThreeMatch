@@ -76,12 +76,13 @@ namespace Assets.Scripts.GameLogic
 
         public void DragBlock(int blockX, int blockY, int newX, int newY)
         {
+            
             if (!Grid.CheckBorder(newX) || !Grid.CheckBorder(newY))
                 return;
-
+            
             if (Grid.CanMoveBlock(blockX, blockY, newX, newY) == false)
                 return;
-
+            
             var currBlockPosition = Grid.BlocksGrid[blockX, blockY];
             var currBlockType = Grid.BlockTypesGrid[blockX, blockY];
 
@@ -93,6 +94,11 @@ namespace Assets.Scripts.GameLogic
 
             Grid.BlockTypesGrid[blockX, blockY] = nextBlockType;
             Grid.BlockTypesGrid[newX, newY] = currBlockType;
+
+            var tempPos = new Vector3(nextBlockPosition.position.x, nextBlockPosition.position.y, nextBlockPosition.position.z);
+            nextBlockPosition.position = new Vector3(currBlockPosition.position.x, currBlockPosition.position.y, currBlockPosition.position.z);
+            currBlockPosition.position = tempPos;
+            UpdateGridDisplay();
         }
 
         void UpdateGridDisplay()

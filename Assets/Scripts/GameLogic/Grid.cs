@@ -175,7 +175,7 @@ namespace Assets.Scripts.GameLogic
         {
             var selectedBlockType = BlockTypesGrid[blockX, blockY];
             var nearBlocks = CountNearBlocks(newX, newY, selectedBlockType);
-            return nearBlocks >= 3;
+            return nearBlocks >= 2;
         }
 
         public static bool CheckBorder(int value)

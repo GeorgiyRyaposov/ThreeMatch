@@ -29,7 +29,6 @@ namespace Assets.Scripts.GameLogic
                 return;
             }
 
-            //var mousePosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
             var v3 = Input.mousePosition - _startMousePosition;
             v3.Normalize();
             var f = Vector3.Dot(v3, Vector3.up);
@@ -47,26 +46,25 @@ namespace Assets.Scripts.GameLogic
 
             if (f >= 0.5)
             {
-                newX++;
+                newY++;
             }
             else if (f <= -0.5)
             {
-                newX--;
+                newY--;
             }
             else
             {
                 f = Vector3.Dot(v3, Vector3.right);
                 if (f >= 0.5)
                 {
-                    newY++;
+                    newX++;
                 }
                 else
                 {
-                    newY--;
+                    newX--;
                 }
             }
             _startMousePosition = Input.mousePosition;
-
             gameController.DragBlock(currX, currY, newX, newY);
         }
     }
