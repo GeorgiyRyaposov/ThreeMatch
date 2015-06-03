@@ -3,13 +3,12 @@
   using Messaging;
   using UnityEngine;
 
-  public class GameController : MonoBehaviour {
+  public class GridController : MonoBehaviour {
 
         public GameObject[] Blocks;
 
         private int _blockTypesCount;
 
-        // Use this for initialization
         void Start ()
         {
             FillGrid();
@@ -62,8 +61,11 @@
         {
             var newBlock = Instantiate(Blocks[blockType],
                 new Vector3(x, y, 0),
-                Quaternion.identity);
-            Grid.BlocksGrid[x, y] = ((GameObject)newBlock).transform;
+                Quaternion.identity) as GameObject;
+
+          newBlock.transform.parent = transform;
+
+            Grid.BlocksGrid[x, y] = newBlock.transform;
             Grid.BlockTypesGrid[x, y] = (BlockTypes)blockType;
         }
 

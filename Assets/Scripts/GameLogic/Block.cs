@@ -15,19 +15,19 @@ namespace Assets.Scripts.GameLogic
 
         void OnMouseDrag()
         {
-            var gameControllerObject = GameObject.FindWithTag("GameController");
-            if (gameControllerObject == null)
-            {
-                Debug.Log("Cannot find 'GameController' script");
-                return;
-            }
+//            var gameControllerObject = GameObject.FindWithTag("GridController");
+//            if (gameControllerObject == null)
+//            {
+//                Debug.Log("Cannot find 'GridController' script");
+//                return;
+//            }
 
-            var gameController = gameControllerObject.GetComponent<GameController>();
-            if (gameController == null)
-            {
-                Debug.Log("Cannot find 'GameController' script");
-                return;
-            }
+//            var gameController = gameControllerObject.GetComponent<GridController>();
+//            if (gameController == null)
+//            {
+//                Debug.Log("Cannot find 'GridController' script");
+//                return;
+//            }
 
             var v3 = Input.mousePosition - _startMousePosition;
             v3.Normalize();
@@ -65,7 +65,8 @@ namespace Assets.Scripts.GameLogic
                 }
             }
             _startMousePosition = Input.mousePosition;
-            gameController.DragBlock(currX, currY, newX, newY);
+
+            FindObjectOfType<GridController>().DragBlock(currX, currY, newX, newY);
         }
     }
 }
