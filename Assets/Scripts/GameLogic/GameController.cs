@@ -1,12 +1,9 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
-using Random = UnityEngine.Random;
-using UnityEngine.UI;
-
-namespace Assets.Scripts.GameLogic
+﻿namespace Assets.Scripts.GameLogic
 {
-    public class GameController : MonoBehaviour {
+  using Messaging;
+  using UnityEngine;
+
+  public class GameController : MonoBehaviour {
 
         public GameObject[] Blocks;
 
@@ -16,12 +13,8 @@ namespace Assets.Scripts.GameLogic
         void Start ()
         {
             FillGrid();
-            UpdateGridDisplay();
-        }
-	
-        // Update is called once per frame
-        void Update () {
-	
+
+            Messenger.Instance.SendMessage("DisplayGrid");
         }
 
         public void SpawnNext() 
@@ -38,8 +31,8 @@ namespace Assets.Scripts.GameLogic
 
         public void FillGrid() 
         {
-            _blockTypesCount = Enum.GetNames(typeof(BlockTypes)).Length-1;
-		
+            _blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length-1;
+
             for (var x = 0; x < Grid.GridSize; x++)
             {
                 for (var y = 0; y < Grid.GridSize; y++)
@@ -98,34 +91,10 @@ namespace Assets.Scripts.GameLogic
             var tempPos = new Vector3(nextBlockPosition.position.x, nextBlockPosition.position.y, nextBlockPosition.position.z);
             nextBlockPosition.position = new Vector3(currBlockPosition.position.x, currBlockPosition.position.y, currBlockPosition.position.z);
             currBlockPosition.position = tempPos;
-            UpdateGridDisplay();
+
+            Messenger.Instance.SendMessage("DisplayGrid");
         }
 
-        void UpdateGridDisplay()
-        {
-            var displayText = GameObject.FindGameObjectsWithTag("UserInterface").First();
-            if (displayText == null)
-            {
-                return;
-            }
-            var txtMesh = displayText.GetComponentInChildren<Text>();
-            if (txtMesh == null)
-            {
-                Debug.LogWarning("Text controll not found");
-                return;
-            }
-            txtMesh.text = String.Empty;
-
-            var maxY = Grid.GridSize - 1;
-            for (int y = maxY; y >= 0; --y)
-            {
-                txtMesh.text += y.ToString("00") + " ";
-                for (var x = 0; x < Grid.GridSize; ++x)
-                {
-                    txtMesh.text += (int)Grid.BlockTypesGrid[x, y];
-                }
-                txtMesh.text += "\n";
-            }
-        }
+        
     }
 }
