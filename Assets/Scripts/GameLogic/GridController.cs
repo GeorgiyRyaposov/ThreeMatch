@@ -17,17 +17,17 @@
       Messenger.Instance.SendMessage("DisplayGrid");
     }
 
-    public void SpawnNext()
-    {
-      var blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length;
-      // Random Index
-      int i = Random.Range(0, blockTypesCount);
-
-      // Spawn Group at current Position
-      Instantiate(Blocks[i],
-          transform.position,
-          Quaternion.identity);
-    }
+//    public void SpawnNext()
+//    {
+//      var blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length;
+//      // Random Index
+//      int i = Random.Range(0, blockTypesCount);
+//
+//      // Spawn Group at current Position
+//      Instantiate(Blocks[i],
+//          transform.position,
+//          Quaternion.identity);
+//    }
 
     private void FillGrid()
     {

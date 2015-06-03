@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Assets.Scripts.GameLogic
 {
+  using System;
+
   public struct Cell
   {
     public Cell(int x, int y)
@@ -166,6 +168,9 @@ namespace Assets.Scripts.GameLogic
 
     public static bool CheckBlock(int x, int y, BlockTypes blockType)
     {
+      if (x >= GridSize || y >= GridSize)
+        return false;
+
       if (BlockTypesGrid[x, y] == BlockTypes.None)
         return false;
 
