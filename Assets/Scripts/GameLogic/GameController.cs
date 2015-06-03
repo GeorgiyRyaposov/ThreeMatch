@@ -74,6 +74,27 @@ namespace Assets.Scripts.GameLogic
             Grid.BlockTypesGrid[x, y] = (BlockTypes)blockType;
         }
 
+        public void DragBlock(int blockX, int blockY, int newX, int newY)
+        {
+            if (!Grid.CheckBorder(newX) || !Grid.CheckBorder(newY))
+                return;
+
+            if (Grid.CanMoveBlock(blockX, blockY, newX, newY) == false)
+                return;
+
+            var currBlockPosition = Grid.BlocksGrid[blockX, blockY];
+            var currBlockType = Grid.BlockTypesGrid[blockX, blockY];
+
+            var nextBlockPosition = Grid.BlocksGrid[newX, newY];
+            var nextBlockType = Grid.BlockTypesGrid[newX, newY];
+
+            Grid.BlocksGrid[blockX, blockY] = nextBlockPosition;
+            Grid.BlocksGrid[newX, newY] = currBlockPosition;
+
+            Grid.BlockTypesGrid[blockX, blockY] = nextBlockType;
+            Grid.BlockTypesGrid[newX, newY] = currBlockType;
+        }
+
         void UpdateGridDisplay()
         {
             var displayText = GameObject.FindGameObjectsWithTag("UserInterface").First();

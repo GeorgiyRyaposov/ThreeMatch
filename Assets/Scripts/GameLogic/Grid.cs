@@ -170,5 +170,17 @@ namespace Assets.Scripts.GameLogic
 
             return BlockTypesGrid[x,y] == blockType;
         }
+
+        public static bool CanMoveBlock(int blockX, int blockY, int newX, int newY)
+        {
+            var selectedBlockType = BlockTypesGrid[blockX, blockY];
+            var nearBlocks = CountNearBlocks(newX, newY, selectedBlockType);
+            return nearBlocks >= 3;
+        }
+
+        public static bool CheckBorder(int value)
+        {
+            return value <= GridSize && value >= 0;
+        }
     }
 }
