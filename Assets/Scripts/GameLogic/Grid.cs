@@ -52,7 +52,7 @@ namespace Assets.Scripts.GameLogic
 
         public static void DeleteBlock(int x, int y) 
         {
-            Destroy(BlocksGrid[x, y]);
+            Destroy(BlocksGrid[x, y].gameObject);
             BlocksGrid[x, y] = null;
         }
 
