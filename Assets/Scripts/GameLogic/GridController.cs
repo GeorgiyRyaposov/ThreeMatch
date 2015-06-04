@@ -5,10 +5,7 @@
 
   public class GridController : MonoBehaviour
   {
-
     public GameObject[] Blocks;
-
-    private int _blockTypesCount;
 
     void Start()
     {
@@ -17,22 +14,8 @@
       Messenger.Instance.SendMessage("DisplayGrid");
     }
 
-//    public void SpawnNext()
-//    {
-//      var blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length;
-//      // Random Index
-//      int i = Random.Range(0, blockTypesCount);
-//
-//      // Spawn Group at current Position
-//      Instantiate(Blocks[i],
-//          transform.position,
-//          Quaternion.identity);
-//    }
-
     public void FillGrid()
     {
-      _blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length - 1;
-
       for (var x = 0; x < Grid.GridSize; x++)
       {
         for (var y = 0; y < Grid.GridSize; y++)
@@ -40,7 +23,7 @@
           //Add first block without check
           if (x == 0 && y == 0)
           {
-            AddBlock(0, 0, Random.Range(0, _blockTypesCount));
+            AddBlock(0, 0, Random.Range(0, Blocks.Length));
             continue;
           }
 
@@ -57,7 +40,7 @@
 
       do
       {
-        randomBlockType = Random.Range(0, _blockTypesCount);
+        randomBlockType = Random.Range(0, Blocks.Length);
         nearBlocks = Grid.CountNearBlocks(x, y, (BlockTypes)randomBlockType);
       }
       while (nearBlocks >= 2);
@@ -76,7 +59,7 @@
 
     public void AddBlock(int x, int y)
     {
-      var newBlock = Instantiate(Blocks[Random.Range(0, _blockTypesCount)],
+      var newBlock = Instantiate(Blocks[Random.Range(0, Blocks.Length)],
           new Vector3(x, Grid.GridSize - 1, 0),
           Quaternion.identity) as GameObject;
 
