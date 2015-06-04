@@ -524,6 +524,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1445389287}
+  - {fileID: 1729934721}
   m_Father: {fileID: 0}
   m_RootOrder: 2
 --- !u!114 &1477937209
@@ -537,12 +538,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d677ca66a65dde48a6bbffaa911dede, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Blocks:
-  - {fileID: 191846, guid: 1f30e6af32eba8548acb63ea5c9d4632, type: 2}
-  - {fileID: 187554, guid: 3dd10d23529085d4ab90e71c57373e7e, type: 2}
-  - {fileID: 192722, guid: 653aa85ad82221c428910bb8eca18ee3, type: 2}
-  - {fileID: 149386, guid: 9151fbeac19705548bd3a75c9f8eec3d, type: 2}
-  - {fileID: 135486, guid: aa2ea0cdddf67e742b7cf87890a00059, type: 2}
 --- !u!1 &1495454672
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,6 +646,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1445389287}
   m_RootOrder: 0
+--- !u!1 &1729934720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 1729934721}
+  - 114: {fileID: 1729934722}
+  m_Layer: 0
+  m_Name: Blocks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1729934721
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1729934720}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1477937208}
+  m_RootOrder: 1
+--- !u!114 &1729934722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1729934720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a28e4896cc012444ad3368a3ac7fdee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Blocks:
+  - {fileID: 187554, guid: 3dd10d23529085d4ab90e71c57373e7e, type: 2}
+  - {fileID: 192722, guid: 653aa85ad82221c428910bb8eca18ee3, type: 2}
+  - {fileID: 149386, guid: 9151fbeac19705548bd3a75c9f8eec3d, type: 2}
+  - {fileID: 135486, guid: aa2ea0cdddf67e742b7cf87890a00059, type: 2}
+  - {fileID: 191846, guid: 1f30e6af32eba8548acb63ea5c9d4632, type: 2}
 --- !u!1 &1941875616
 GameObject:
   m_ObjectHideFlags: 0
