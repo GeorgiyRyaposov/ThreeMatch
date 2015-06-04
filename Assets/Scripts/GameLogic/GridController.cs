@@ -29,7 +29,7 @@
 //          Quaternion.identity);
 //    }
 
-    private void FillGrid()
+    public void FillGrid()
     {
       _blockTypesCount = System.Enum.GetNames(typeof(BlockTypes)).Length - 1;
 
@@ -37,6 +37,13 @@
       {
         for (var y = 0; y < Grid.GridSize; y++)
         {
+          //Add first block without check
+          if (x == 0 && y == 0)
+          {
+            AddBlock(0, 0, Random.Range(0, _blockTypesCount));
+            continue;
+          }
+
           var blockType = GenerateBlockType(x, y);
           AddBlock(x, y, blockType);
         }
@@ -45,8 +52,8 @@
 
     private int GenerateBlockType(int x, int y)
     {
-      var nearBlocks = 0;
-      var randomBlockType = 0;
+      int nearBlocks;
+      int randomBlockType;
 
       do
       {
@@ -58,46 +65,70 @@
       return randomBlockType;
     }
 
-    private void AddBlock(int x, int y, int blockType)
+    public void AddBlock(int x, int y, int blockType)
     {
       var newBlock = Instantiate(Blocks[blockType],
           new Vector3(x, y, 0),
-          Quaternion.identity) as GameObject;
-
-      newBlock.transform.parent = transform;
-
-      Grid.BlocksGrid[x, y] = newBlock.transform;
-      Grid.BlockTypesGrid[x, y] = (BlockTypes)blockType;
+          Quaternion.identity);
+      Grid.BlocksGrid[x, y] = (GameObject)newBlock;
     }
 
-    public void DragBlock(int blockX, int blockY, int newX, int newY)
+    public void AddBlock(int x, int y)
     {
+      var newBlock = Instantiate(Blocks[Random.Range(0, _blockTypesCount)],
+          new Vector3(x, Grid.GridSize - 1, 0),
+          Quaternion.identity) as GameObject;
 
+      var block = newBlock.GetComponent<Block>();
+      block.MoveToNewPoint(x, y);
+      Grid.BlocksGrid[x, y] = newBlock;
+    }
+
+
+
+    public void DragBlock(Block draggebleBlock, int blockX, int blockY, int newX, int newY)
+    {
       if (!Grid.CheckBorder(newX) || !Grid.CheckBorder(newY))
+      {
+        draggebleBlock.MoveToPreviousPoint();
         return;
+      }
 
       if (Grid.CanMoveBlock(blockX, blockY, newX, newY) == false)
+      {
+        draggebleBlock.MoveToPreviousPoint();
         return;
+      }
 
-      var currBlockPosition = Grid.BlocksGrid[blockX, blockY];
-      var currBlockType = Grid.BlockTypesGrid[blockX, blockY];
+      var currBlock = Grid.BlocksGrid[blockX, blockY];
+      var draggableBlockPosition = currBlock.GetComponent<Transform>().position;
 
-      var nextBlockPosition = Grid.BlocksGrid[newX, newY];
-      var nextBlockType = Grid.BlockTypesGrid[newX, newY];
+      var nextBlock = Grid.BlocksGrid[newX, newY];
+      var nextBlockPosition = nextBlock.GetComponent<Transform>().position;
 
-      Grid.BlocksGrid[blockX, blockY] = nextBlockPosition;
-      Grid.BlocksGrid[newX, newY] = currBlockPosition;
+      draggebleBlock.MoveToNewPoint(nextBlockPosition);
+      nextBlock.GetComponent<Block>().MoveToNewPoint(draggableBlockPosition);
 
-      Grid.BlockTypesGrid[blockX, blockY] = nextBlockType;
-      Grid.BlockTypesGrid[newX, newY] = currBlockType;
+      Grid.BlocksGrid[blockX, blockY] = nextBlock;
+      Grid.BlocksGrid[newX, newY] = currBlock;
 
-      var tempPos = new Vector3(nextBlockPosition.position.x, nextBlockPosition.position.y, nextBlockPosition.position.z);
-      nextBlockPosition.position = new Vector3(currBlockPosition.position.x, currBlockPosition.position.y, currBlockPosition.position.z);
-      currBlockPosition.position = tempPos;
+      CollapseBlocks(newX, newY, draggebleBlock.BlockType);
 
       Messenger.Instance.SendMessage("DisplayGrid");
     }
 
+    void CollapseBlocks(int x, int y, BlockTypes blockType)
+    {
+      var blocksToCollapse = Grid.GetSameNearBlocks(x, y, blockType);
+      if (blocksToCollapse.Count < 3)
+        return;
 
+      foreach (var block in blocksToCollapse)
+      {
+        Grid.DeleteBlock(block.X, block.Y);
+        Grid.DecreaseColumns(block.X);
+      }
+
+    }
   }
 }

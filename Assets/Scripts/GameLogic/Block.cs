@@ -2,36 +2,6 @@
 
 namespace Assets.Scripts.GameLogic
 {
-<<<<<<< HEAD
-  public class Block : MonoBehaviour
-  {
-    public BlockTypes BlockType;
-    private Vector3 _startMousePosition;
-    private const int Threshold = 9;
-
-    void OnMouseDown()
-    {
-      _startMousePosition = Input.mousePosition;
-    }
-
-    void OnMouseDrag()
-    {
-      var v3 = Input.mousePosition - _startMousePosition;
-      v3.Normalize();
-      var f = Vector3.Dot(v3, Vector3.up);
-      if (Vector3.Distance(_startMousePosition, Input.mousePosition) < Threshold)
-      {
-        //Debug.Log("No movement");
-        return;
-      }
-
-      var transf = GetComponent<Transform>();
-      var currX = (int)Mathf.Round(transf.position.x);
-      var currY = (int)Mathf.Round(transf.position.y);
-      var newX = currX;
-      var newY = currY;
-
-=======
   public class Block : MonoBehaviour 
   {
     public BlockTypes BlockType;
@@ -95,19 +65,7 @@ namespace Assets.Scripts.GameLogic
 
     void OnMouseUp()
     {
-      var gameControllerObject = GameObject.FindWithTag("GameController");
-      if (gameControllerObject == null)
-      {
-        Debug.Log("Cannot find 'GameController' script");
-        return;
-      }
 
-      var gameController = gameControllerObject.GetComponent<GameController>();
-      if (gameController == null)
-      {
-        Debug.Log("Cannot find 'GameController' script");
-        return;
-      }
 
       var v3 = Input.mousePosition - _startMousePosition;
       v3.Normalize();
@@ -122,7 +80,7 @@ namespace Assets.Scripts.GameLogic
       var oldY = (int)Mathf.Round(_startBlockPosition.y);
       var newX = oldX;
       var newY = oldY;
->>>>>>> bf2445ff612b246e0307904cffec2e4e23e21012
+
       if (f >= 0.5)
       {
         newY++;
@@ -137,27 +95,17 @@ namespace Assets.Scripts.GameLogic
         if (f >= 0.5)
         {
           newX++;
-<<<<<<< HEAD
+
         }
         else
         {
           newX--;
         }
       }
-      _startMousePosition = Input.mousePosition;
-
-      FindObjectOfType<GridController>().DragBlock(currX, currY, newX, newY);
-=======
-        }
-        else
-        {
-          newX--;
-        }
-      }
-
-      _transform.position = _startBlockPosition;
-      gameController.DragBlock(this, oldX, oldY, newX, newY);
->>>>>>> bf2445ff612b246e0307904cffec2e4e23e21012
+      
+      _transform.position = _startBlockPosition;     
+      
+      FindObjectOfType<GridController>().DragBlock(this, oldX, oldY, newX, newY);
     }
   }
 }

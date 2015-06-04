@@ -35,7 +35,7 @@
         _gridDisplay.text += y.ToString("00") + " ";
         for (var x = 0; x < Grid.GridSize; ++x)
         {
-          _gridDisplay.text += (int)Grid.BlockTypesGrid[x, y];
+          _gridDisplay.text += (int)Grid.BlocksGrid[x, y].GetComponent<Block>().BlockType;
         }
         _gridDisplay.text += "\n";
       }
