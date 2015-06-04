@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.GameLogic
@@ -28,8 +27,7 @@ namespace Assets.Scripts.GameLogic
     public class Grid : MonoBehaviour {
 
         public static int GridSize = 8;
-        public static Transform[,] BlocksGrid = new Transform[GridSize, GridSize];
-        public static BlockTypes[,] BlockTypesGrid = new BlockTypes[GridSize, GridSize];
+        public static GameObject[,] BlocksGrid = new GameObject[GridSize, GridSize];
 
         public static Vector2 RoundVec2(Vector2 v) 
         {
@@ -39,9 +37,8 @@ namespace Assets.Scripts.GameLogic
 
         public static void DeleteBlock(int x, int y) 
         {
-            Destroy(BlocksGrid[x, y].gameObject);
+            Destroy(BlocksGrid[x, y]);
             BlocksGrid[x, y] = null;
-            BlockTypesGrid[x, y] = BlockTypes.None;
         }
 
         public static bool IsColumnFull(int x) 
@@ -56,29 +53,57 @@ namespace Assets.Scripts.GameLogic
             return true;
         }
 
-        public static void DecreaseColumnsAbove(int x) 
+        public static void DecreaseColumns(int x) 
         {
-            for (int i = x; i < GridSize; ++i) 
+          for (var y = 0; y < GridSize; y++) 
+          {
+            if (BlocksGrid[x, y] != null) continue;
+
+            var upperY = y + 1;
+
+            //Top border, don't increment
+            if (y == GridSize - 1)
             {
-                DecreaseColumn (i);
+              upperY = y;
             }
+
+            //Add block at top 
+            if (BlocksGrid[x, upperY] == null)
+            {
+              AddBlock(x, upperY);
+              continue;
+            }
+
+            // Move one towards bottom
+            var upperBlock = BlocksGrid[x, upperY].GetComponent<Block>();
+            var upperBlockPosition = BlocksGrid[x, upperY].GetComponent<Transform>().position;
+            upperBlockPosition += new Vector3(0, -1, 0);
+            upperBlock.MoveToNewPoint(upperBlockPosition);
+
+            BlocksGrid[x, y] = BlocksGrid[x, upperY];
+            BlocksGrid[x, upperY] = null;
+          }
         }
 
-        public static void DecreaseColumn(int x) 
+      private static void AddBlock(int x, int y)
+      {
+        var gameControllerObject = GameObject.FindWithTag("GameController");
+        if (gameControllerObject == null)
         {
-            for (int y = 0; y < GridSize; ++y) 
-            {
-                if (BlocksGrid[x, y] != null) 
-                {
-                    // Move one towards bottom
-                    BlocksGrid[x, y-1] = BlocksGrid[x, y];
-                    BlocksGrid[x, y] = null;
-				
-                    // Update Block position
-                    BlocksGrid[x, y-1].position += new Vector3(0, -1, 0);
-                }
-            }
+          Debug.Log("Cannot find 'GameController' script");
+          return;
         }
+
+        var gameController = gameControllerObject.GetComponent<GameController>();
+        if (gameController == null)
+        {
+          Debug.Log("Cannot find 'GameController' script");
+          return;
+        }
+
+        gameController.AddBlock(x, y);
+      }
+
 
         /// <summary>
         /// Return list of blocks coordinate which are same
@@ -165,17 +190,25 @@ namespace Assets.Scripts.GameLogic
 
         public static bool CheckBlock(int x, int y, BlockTypes blockType)
         {
-            if (BlockTypesGrid[x, y] == BlockTypes.None)
-                return false;
+          if (BlocksGrid[x, y] == null)
+            return false;
 
-            return BlockTypesGrid[x,y] == blockType;
+          var block = BlocksGrid[x, y].GetComponent<Block>();
+          if (block == null)
+            return false;
+          
+          var foundBlockType = block.BlockType;
+          if (foundBlockType == BlockTypes.None)
+              return false;
+
+          return foundBlockType == blockType;
         }
 
         public static bool CanMoveBlock(int blockX, int blockY, int newX, int newY)
         {
-            var selectedBlockType = BlockTypesGrid[blockX, blockY];
-            var nearBlocks = CountNearBlocks(newX, newY, selectedBlockType);
-            return nearBlocks >= 2;
+          var selectedBlockType = BlocksGrid[blockX, blockY].GetComponent<Block>().BlockType;
+          var nearBlocks = CountNearBlocks(newX, newY, selectedBlockType);
+          return nearBlocks >= 2;
         }
 
         public static bool CheckBorder(int value)
