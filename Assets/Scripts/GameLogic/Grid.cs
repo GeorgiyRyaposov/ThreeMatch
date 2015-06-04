@@ -31,7 +31,6 @@ namespace Assets.Scripts.GameLogic
 
     public static int GridSize = 8;
         public static GameObject[,] BlocksGrid = new GameObject[GridSize, GridSize];
-        public static BlockTypes[,] BlockTypesGrid = new BlockTypes[GridSize, GridSize];
 
     public static Vector2 RoundVec2(Vector2 v)
     {
@@ -51,21 +50,11 @@ namespace Assets.Scripts.GameLogic
       return true;
     }
 
-//<<<<<<< HEAD
-//    public static void DecreaseColumnsAbove(int x)
-//    {
-//      for (int i = x; i < GridSize; ++i)
-//      {
-//        DecreaseColumn(i);
-//      }
-//    }
-//=======
         public static void DeleteBlock(int x, int y) 
         {
             Destroy(BlocksGrid[x, y]);
             BlocksGrid[x, y] = null;
         }
-//>>>>>>> bf2445ff612b246e0307904cffec2e4e23e21012
 
         public static void DecreaseColumns(int x) 
         {

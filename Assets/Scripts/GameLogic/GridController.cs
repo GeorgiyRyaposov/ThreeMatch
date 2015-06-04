@@ -69,8 +69,9 @@
     {
       var newBlock = Instantiate(Blocks[blockType],
           new Vector3(x, y, 0),
-          Quaternion.identity);
-      Grid.BlocksGrid[x, y] = (GameObject)newBlock;
+          Quaternion.identity) as GameObject;
+      newBlock.transform.parent = transform;
+      Grid.BlocksGrid[x, y] = newBlock;
     }
 
     public void AddBlock(int x, int y)
@@ -78,6 +79,8 @@
       var newBlock = Instantiate(Blocks[Random.Range(0, _blockTypesCount)],
           new Vector3(x, Grid.GridSize - 1, 0),
           Quaternion.identity) as GameObject;
+
+      newBlock.transform.parent = transform;
 
       var block = newBlock.GetComponent<Block>();
       block.MoveToNewPoint(x, y);
