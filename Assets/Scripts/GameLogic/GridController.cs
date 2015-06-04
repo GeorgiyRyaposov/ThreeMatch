@@ -5,72 +5,52 @@
 
   public class GridController : MonoBehaviour
   {
-    public GameObject[] Blocks;
+    private BlockFactory _factory;
 
-    void Start()
+    protected void Start()
     {
+      _factory = FindObjectOfType<BlockFactory>();
+
       FillGrid();
 
       Messenger.Instance.SendMessage("DisplayGrid");
     }
 
-    public void FillGrid()
+    private void FillGrid()
     {
-      for (var x = 0; x < Grid.GridSize; x++)
+      for (var y = 0; y < Grid.GridSize; y++)
       {
-        for (var y = 0; y < Grid.GridSize; y++)
+        for (var x = 0; x < Grid.GridSize; x++)
         {
-          //Add first block without check
-          if (x == 0 && y == 0)
+          string xMatch = null;
+          if (x > 1 && Grid.BlocksGrid[x - 2, y].name == Grid.BlocksGrid[x - 1, y].name)
           {
-            AddBlock(0, 0, Random.Range(0, Blocks.Length));
-            continue;
+            xMatch = Grid.BlocksGrid[x - 1, y].name;
           }
 
-          var blockType = GenerateBlockType(x, y);
-          AddBlock(x, y, blockType);
+          string yMatch = null;
+          if (y > 1 && Grid.BlocksGrid[x, y - 2].name == Grid.BlocksGrid[x, y - 1].name)
+          {
+            yMatch = Grid.BlocksGrid[x, y - 1].name;
+          }
+
+          Grid.BlocksGrid[x, y] = _factory.CreateBlockAt(x, y, xMatch, yMatch);
         }
       }
     }
 
-    private int GenerateBlockType(int x, int y)
-    {
-      int nearBlocks;
-      int randomBlockType;
 
-      do
-      {
-        randomBlockType = Random.Range(0, Blocks.Length);
-        nearBlocks = Grid.CountNearBlocks(x, y, (BlockTypes)randomBlockType);
-      }
-      while (nearBlocks >= 2);
 
-      return randomBlockType;
-    }
 
-    public void AddBlock(int x, int y, int blockType)
-    {
-      var newBlock = Instantiate(Blocks[blockType],
-          new Vector3(x, y, 0),
-          Quaternion.identity) as GameObject;
-      newBlock.transform.parent = transform;
-      Grid.BlocksGrid[x, y] = newBlock;
-    }
 
     public void AddBlock(int x, int y)
     {
-      var newBlock = Instantiate(Blocks[Random.Range(0, Blocks.Length)],
-          new Vector3(x, Grid.GridSize - 1, 0),
-          Quaternion.identity) as GameObject;
+      var obj = _factory.CreateBlockAt(x, Grid.GridSize - 1);
 
-      newBlock.transform.parent = transform;
-
-      var block = newBlock.GetComponent<Block>();
+      var block = obj.GetComponent<Block>();
       block.MoveToNewPoint(x, y);
-      Grid.BlocksGrid[x, y] = newBlock;
+      Grid.BlocksGrid[x, y] = obj;
     }
-
-
 
     public void DragBlock(Block draggebleBlock, int blockX, int blockY, int newX, int newY)
     {
