@@ -1,13 +1,19 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿namespace Assets.Scripts.UI
+{
+  using Messaging;
+  using UnityEngine;
 
-public class LoadOnClick : MonoBehaviour {
+  public class LoadOnClick : MonoBehaviour {
 
-	public GameObject loadingImage;
+    public GameObject loadingImage;
 	
-	public void LoadScene(int level)
-	{
-		loadingImage.SetActive(true);
-		Application.LoadLevel(level);
-	}
+    public void LoadScene(int level)
+    {
+      loadingImage.SetActive(true);
+
+      Messenger.Instance.SendMessage("LevelLoading");
+
+      Application.LoadLevel(level);
+    }
+  }
 }

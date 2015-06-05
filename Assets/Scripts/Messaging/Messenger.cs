@@ -1,50 +1,13 @@
 ﻿namespace Assets.Scripts.Messaging
 {
   using System.Collections.Generic;
+  using Infrastructure;
   using UnityEngine;
   using UnityEngine.Events;
 
-  public class Messenger : MonoBehaviour 
+  public class Messenger : Singleton<Messenger>
   {
     private readonly Dictionary<string, UnityEvent> _messageMap = new Dictionary<string, UnityEvent>();
-
-    private static Messenger _instance;
-    public static Messenger Instance
-    {
-      get
-      {
-        if (_instance == null)
-        {
-          _instance = FindObjectOfType<Messenger>();
-
-          if (_instance == null)
-          {
-            var go = new GameObject("Messenger");
-            
-            DontDestroyOnLoad(go);
-            
-            _instance = go.AddComponent<Messenger>();
-          }
-        }
-
-        return _instance;
-      }
-    }
-
-    protected void Awake()
-    {
-      if (_instance == null)
-      {
-        _instance = this;
-
-        DontDestroyOnLoad(this);
-      }
-      else
-      {
-        if (this != _instance)
-          Destroy(this.gameObject);
-      }
-    }
 
     public void AddHandler(string message, UnityAction handler)
     {
