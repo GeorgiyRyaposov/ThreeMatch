@@ -28,7 +28,7 @@ namespace Assets.Scripts.GameLogic
       var dropSprite = GetDropSprite (data);
       if (dropSprite != null)
       {
-        var canFlip = FindObjectOfType<GridControllerEx>().CanFlip(this.gameObject, data.pointerDrag);
+        var canFlip = FindObjectOfType<GridController>().CanFlip(this.gameObject, data.pointerDrag);
         if (canFlip)
         {
           data.pointerDrag.GetComponent<Image>().sprite = receivingImage.sprite;

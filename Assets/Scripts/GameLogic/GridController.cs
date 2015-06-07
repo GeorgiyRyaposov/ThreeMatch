@@ -1,100 +1,67 @@
 ﻿namespace Assets.Scripts.GameLogic
 {
-  using Messaging;
+  using System.Collections.Generic;
+  using System.Linq;
   using UnityEngine;
+  using UnityEngine.UI;
 
   public class GridController : MonoBehaviour
   {
-    private BlockFactory _factory;
+    public GameObject Slot;
+    public Sprite[] Sprites;
+
+    public static int GridWidth = 8;
+    public static int GridHeight = 8;
+    private readonly Sprite[,] _cells = new Sprite[GridWidth, GridHeight];
+    private readonly GameObject[,] _cells2 = new GameObject[GridWidth, GridHeight];
 
     protected void Start()
     {
-      _factory = FindObjectOfType<BlockFactory>();
-
-      FillGrid();
-
-      Messenger.Instance.SendMessage("DisplayGrid");
-    }
-
-    private void FillGrid()
-    {
-      for (var y = 0; y < Grid.GridSize; y++)
+      for (int x = 0; x < GridWidth; x++)
       {
-        for (var x = 0; x < Grid.GridSize; x++)
+        for (int y = 0; y < GridHeight; y++)
         {
-          string xMatch = null;
-          if (x > 1 && Grid.BlocksGrid[x - 2, y].name == Grid.BlocksGrid[x - 1, y].name)
+          var slot = Instantiate(Slot);
+          slot.transform.SetParent(transform, false);          
+
+          var matches = new List<Sprite>();
+          
+          if (x > 1 && _cells[x - 2, y] == _cells[x - 1, y])
           {
-            xMatch = Grid.BlocksGrid[x - 1, y].name;
+            matches.Add(_cells[x - 1, y]);
+          }
+          if (y > 1 && _cells[x, y - 2] == _cells[x, y - 1])
+          {
+            matches.Add(_cells[x, y - 1]);
           }
 
-          string yMatch = null;
-          if (y > 1 && Grid.BlocksGrid[x, y - 2].name == Grid.BlocksGrid[x, y - 1].name)
-          {
-            yMatch = Grid.BlocksGrid[x, y - 1].name;
-          }
-
-          Grid.BlocksGrid[x, y] = _factory.CreateBlockAt(x, y, xMatch, yMatch);
+          var sprites = Sprites.Except(matches).ToList();
+          var sprite = sprites[Random.Range(0, sprites.Count)];
+          _cells2[x, y] = slot;
+          slot.GetComponent<Image>().sprite = _cells[x, y] = sprite;
         }
       }
     }
 
-
-
-
-
-    public void AddBlock(int x, int y)
+    private Vector2 GetCell(GameObject block)
     {
-      var obj = _factory.CreateBlockAt(x, Grid.GridSize - 1);
+      for (int x = 0; x < GridWidth; x++)
+      {
+        for (int y = 0; y < GridHeight; y++)
+        {
+          if (block == _cells2[x, y])
+          {
+            return new Vector2(x, y);
+          }
+        }
+      }
 
-      var block = obj.GetComponent<Block>();
-      block.MoveToNewPoint(x, y);
-      Grid.BlocksGrid[x, y] = obj;
+      return Vector2.zero;
     }
 
-    public void DragBlock(Block draggebleBlock, int blockX, int blockY, int newX, int newY)
+    public bool CanFlip(GameObject first, GameObject second)
     {
-      if (!Grid.CheckBorder(newX) || !Grid.CheckBorder(newY))
-      {
-        draggebleBlock.MoveToPreviousPoint();
-        return;
-      }
-
-      if (Grid.CanMoveBlock(blockX, blockY, newX, newY) == false)
-      {
-        draggebleBlock.MoveToPreviousPoint();
-        return;
-      }
-
-      var currBlock = Grid.BlocksGrid[blockX, blockY];
-      var draggableBlockPosition = currBlock.GetComponent<Transform>().position;
-
-      var nextBlock = Grid.BlocksGrid[newX, newY];
-      var nextBlockPosition = nextBlock.GetComponent<Transform>().position;
-
-      draggebleBlock.MoveToNewPoint(nextBlockPosition);
-      nextBlock.GetComponent<Block>().MoveToNewPoint(draggableBlockPosition);
-
-      Grid.BlocksGrid[blockX, blockY] = nextBlock;
-      Grid.BlocksGrid[newX, newY] = currBlock;
-
-      CollapseBlocks(newX, newY, draggebleBlock.BlockType);
-
-      Messenger.Instance.SendMessage("DisplayGrid");
-    }
-
-    void CollapseBlocks(int x, int y, BlockTypes blockType)
-    {
-      var blocksToCollapse = Grid.GetSameNearBlocks(x, y, blockType);
-      if (blocksToCollapse.Count < 3)
-        return;
-
-      foreach (var block in blocksToCollapse)
-      {
-        Grid.DeleteBlock(block.X, block.Y);
-        Grid.DecreaseColumns(block.X);
-      }
-
+      return !(Vector2.Distance(GetCell(first), GetCell(second)) > 1);
     }
   }
 }
