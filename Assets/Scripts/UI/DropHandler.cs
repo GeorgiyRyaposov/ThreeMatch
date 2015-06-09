@@ -34,9 +34,8 @@ namespace Assets.Scripts.GameLogic
         {
           data.pointerDrag.GetComponent<Image>().sprite = receivingImage.sprite;
           receivingImage.sprite = dropSprite;
-
-//        data.pointerDrag.GetComponent<Image>().enabled = false;
-          gridController.CheckGrid(updateGrid:true);
+          
+          gridController.FindMatch();
         }      
       }			
     }

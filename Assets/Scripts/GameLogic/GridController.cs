@@ -1,9 +1,11 @@
 ﻿namespace Assets.Scripts.GameLogic
 {
+  using System.Collections;
   using System.Collections.Generic;
   using System.Linq;
+  using Infrastructure;
   using UnityEngine;
-  using UnityEngine.UI;
+  using UnityEngine.UI;  
 
   public class GridController : MonoBehaviour
   {
@@ -12,8 +14,7 @@
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
-    private readonly Sprite[,] _cells = new Sprite[GridWidth, GridHeight];
-    private readonly GameObject[,] _cells2 = new GameObject[GridWidth, GridHeight];
+    private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
 
     protected void Start()
     {
@@ -26,19 +27,20 @@
 
           var matches = new List<Sprite>();
           
-          if (x > 1 && _cells[x - 2, y] == _cells[x - 1, y])
+          if (x > 1 && _cells[x - 2, y].sprite == _cells[x - 1, y].sprite)
           {
-            matches.Add(_cells[x - 1, y]);
+            matches.Add(_cells[x - 1, y].sprite);
           }
-          if (y > 1 && _cells[x, y - 2] == _cells[x, y - 1])
+          if (y > 1 && _cells[x, y - 2].sprite == _cells[x, y - 1].sprite)
           {
-            matches.Add(_cells[x, y - 1]);
+            matches.Add(_cells[x, y - 1].sprite);
           }
 
           var sprites = Sprites.Except(matches).ToList();
           var sprite = sprites[Random.Range(0, sprites.Count)];
-          _cells2[x, y] = slot;
-          slot.GetComponent<Image>().sprite = _cells[x, y] = sprite;
+
+          slot.GetComponent<Image>().sprite = sprite;
+          _cells[x, y] = slot.GetComponent<Image>();
         }
       }
     }
@@ -49,7 +51,7 @@
       {
         for (int y = 0; y < GridHeight; y++)
         {
-          if (block == _cells2[x, y])
+          if (block == _cells[x, y].gameObject)
           {
             return new Vector2(x, y);
           }
@@ -64,115 +66,57 @@
       return !(Vector2.Distance(GetCell(first), GetCell(second)) > 1);
     }
 
-    private void UpdateSpritesGrid()
+    public IEnumerator RemoveMatches()
     {
+      while (true)
+      {
+        // TODO: Find matches, create new blocks
+
+        yield return null;
+      }
+    }
+
+    public void FindMatch()
+    {    
       for (int x = 0; x < GridWidth; x++)
       {
-        for (int y = 0; y < GridHeight; y++)
+        var column = Enumerable.Range(0, GridHeight)
+          .Select(row => _cells[row, x])
+          .ToList();
+
+        var matches = column
+          .FindMatches((item1, item2) => item1.sprite == item2.sprite)
+          .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
+          .ToList();
+
+        if (matches.Count > 0)
         {
-          _cells[x, y] = _cells2[x, y].GetComponent<Image>().sprite;
+          Debug.LogError("Matches Found in Column");
+
+          // TODO: Remove matches
+          // return true;
         }
       }
-    }
-    
-    public void CheckGrid(bool updateGrid = false)
-    {
-      if (updateGrid)
-      {
-        UpdateSpritesGrid();
-      }
 
-      var matches = new List<Vector2>();
-      for (int x = 0; x < GridWidth; x++)
+      for (int y = 0; y < GridHeight; y++)
       {
-        for (int y = 0; y < GridHeight; y++)
+        var row = Enumerable.Range(0, GridWidth)
+          .Select(column => _cells[y, column])
+          .ToList();
+
+        var matches = row
+          .FindMatches((item1, item2) => item1.sprite == item2.sprite)
+          .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
+          .ToList();
+
+        if (matches.Count > 0)
         {
-          matches.Add(new Vector2(x, y));
+          Debug.LogError("Matches Found in Row");
 
-          var rowMatches = new List<Vector2>();
-          rowMatches.AddRange(GetNearBlocksInRow(x, y));
-          if(rowMatches.Count > 1)
-            matches.AddRange(rowMatches);
-
-          var columnMatches = new List<Vector2>();
-          columnMatches.AddRange(GetNearBlocksInColumn(x, y));
-          if (columnMatches.Count > 1)
-            matches.AddRange(columnMatches);
-          
-          if (matches.Count > 2)
-          {
-            matches = matches.OrderByDescending(v => v.y).ToList();
-            CollapseBlocks(matches);
-            CheckGrid();
-            return;
-          }
-          else
-          {
-            matches.Clear();
-          }
+          // TODO: Remove matches
+          // return true;
         }
       }
-    }
-
-    private void CollapseBlocks(IEnumerable<Vector2> blocks)
-    {
-      foreach (var block in blocks)
-      {
-        var y = (int)Mathf.Round(block.y);
-        for (var x = (int)Mathf.Round(block.x); x >= 0; x--)
-        {
-          if (x == 0)
-          {
-            var sprite = Sprites[Random.Range(0, Sprites.Length)];
-            _cells2[x, y].GetComponent<Image>().sprite = _cells[x, y] = sprite;
-            continue;
-          }
-
-          _cells2[x, y].GetComponent<Image>().sprite = _cells[x, y] = _cells2[x - 1, y].GetComponent<Image>().sprite;
-        }
-      }
-    }
-
-    private IEnumerable<Vector2> GetNearBlocksInColumn(int x, int y)
-    {
-      for (var nextY = y + 1; nextY < GridHeight; nextY++)
-      {
-        if (_cells[x, y] == _cells[x, nextY])
-          yield return new Vector2(x, nextY);
-        else
-          break;
-      }
-    }
-
-    private IEnumerable<Vector2> GetNearBlocksInRow(int x, int y)
-    {
-      for (var nextX = x + 1; nextX < GridWidth; nextX++)
-      {
-        if (_cells[x, y] == _cells[nextX, y])
-          yield return new Vector2(nextX, y);
-        else
-          break;
-      }
-    }
-
-    private void LogGrid()
-    {
-      var str = "  Y:    01234567\n";
-      for (int x = 0; x < GridWidth; x++)
-      {
-        str += ("X:" + x.ToString("00") + "| ");
-        for (int y = 0; y < GridHeight; y++)
-        {
-          for (int i = 0; i < Sprites.Length; i++)
-          {
-            if (Sprites[i] == _cells[x, y])
-              str += (i);
-          }
-        }
-
-        str += "\n";
-      }
-      Debug.Log(str);
     }
   }
 }
