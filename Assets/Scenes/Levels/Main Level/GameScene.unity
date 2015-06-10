@@ -611,8 +611,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Slot: {fileID: 192938, guid: e0df827dbfdcffa478ae6166cd4ae678, type: 2}
   Sprites:
-  - {fileID: 21300000, guid: 71ecb0451d604084c9906541445edf74, type: 3}
-  - {fileID: 21300000, guid: 72304276e5c10914386a18df6f9a8b14, type: 3}
-  - {fileID: 21300000, guid: 7b6eb30a78fb6bd4c8d1c73dcc4f1ddb, type: 3}
-  - {fileID: 21300000, guid: 1d27580f9a0dcce49b8b4f4f6c53e962, type: 3}
-  - {fileID: 21300000, guid: 889c655f2bc96a1449f542362fc3d7df, type: 3}
+  - {fileID: 21300000, guid: 5d0283a78abf37d4eb9bf2c5d94a7491, type: 3}
+  - {fileID: 21300000, guid: 3ad7a57f583d69943a41254e55ca7564, type: 3}
+  - {fileID: 21300000, guid: 35be66b158605b646abf323ad6c76c9e, type: 3}
+  - {fileID: 21300000, guid: 6eca75c2550b5664d83feb44ea0d73bc, type: 3}
+  - {fileID: 21300000, guid: c4ce5b2d0a0496c41a0b27559b6b2b5d, type: 3}
