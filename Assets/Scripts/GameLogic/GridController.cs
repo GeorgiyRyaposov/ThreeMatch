@@ -23,7 +23,12 @@
         for (int y = 0; y < GridHeight; y++)
         {
           var slot = Instantiate(Slot);
-          slot.transform.SetParent(transform, false);          
+          slot.transform.SetParent(transform, false);
+          
+          // To fix sorting order of canvas' children
+          var canvas = slot.AddComponent<Canvas>();
+          canvas.overrideSorting = true;
+          canvas.sortingOrder = 1;
 
           var matches = new List<Sprite>();
           

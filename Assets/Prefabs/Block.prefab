@@ -65,7 +65,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f36ef29936e324ebf6c18c58737fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragOnSurfaces: 1
 --- !u!222 &22229828
 CanvasRenderer:
   m_ObjectHideFlags: 1

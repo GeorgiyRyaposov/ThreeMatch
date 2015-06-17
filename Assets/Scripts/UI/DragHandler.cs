@@ -17,6 +17,9 @@ namespace Assets.Scripts.GameLogic
       if (canvas == null)
         return;
 
+      // Show object on the top of canvas and its children
+      gameObject.GetComponent<Canvas>().sortingOrder++;
+
       var group = gameObject.AddComponent<CanvasGroup>();
       group.blocksRaycasts = false;
 		
@@ -55,6 +58,8 @@ namespace Assets.Scripts.GameLogic
       Destroy(GetComponent<CanvasGroup>());
 
       transform.position = _originalTransform;
+
+      gameObject.GetComponent<Canvas>().sortingOrder--;
     }
 
     static public T FindInParents<T>(GameObject go) where T : Component
