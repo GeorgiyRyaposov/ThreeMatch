@@ -29,13 +29,13 @@ namespace Assets.Scripts.GameLogic
       if (dropSprite != null)
       {
         var gridController = FindObjectOfType<GridController>();
-        var canFlip = gridController.CanFlip(this.gameObject, data.pointerDrag);
-        if (canFlip)
+//        var canFlip = gridController.CanFlip(this.gameObject, data.pointerDrag);
+//        if (canFlip)
         {
           data.pointerDrag.GetComponent<Image>().sprite = receivingImage.sprite;
           receivingImage.sprite = dropSprite;
           
-          gridController.FindMatch();
+//          gridController.FindMatch();
         }      
       }			
     }
