@@ -1,5 +1,6 @@
 namespace Assets.Scripts.GameLogic
 {
+  using System.Collections;
   using UnityEngine;
   using UnityEngine.EventSystems;
   using UnityEngine.UI;
@@ -35,7 +36,9 @@ namespace Assets.Scripts.GameLogic
           data.pointerDrag.GetComponent<Image>().sprite = receivingImage.sprite;
           receivingImage.sprite = dropSprite;
           
-          gridController.FindMatch();
+          // TODO: If matches not found re-flip
+          
+          gridController.Refresh();
         }      
       }			
     }

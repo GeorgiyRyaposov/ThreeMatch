@@ -71,18 +71,40 @@
       return !(Vector2.Distance(GetCell(first), GetCell(second)) > 1);
     }
 
-    public IEnumerator RemoveMatches()
+    public void Refresh()
+    {
+      StartCoroutine(RemoveMatches());
+    }
+
+    private IEnumerator RemoveMatches()
     {
       while (true)
       {
-        // TODO: Find matches, create new blocks
+        var matches = FindMatch();
+        if (matches.Count > 0)
+        {
+          foreach (var match in matches)
+          {
+            var sprite = Sprites[Random.Range(0, Sprites.Length)];
+            match.gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
+            match.gameObject.GetComponent<Animation>().Play();
+          }
+
+          yield return new WaitForSeconds(1.0f);
+        }
+        else
+        {
+          yield break;          
+        }
 
         yield return null;
-      }
+      }      
     }
 
-    public void FindMatch()
-    {    
+    private List<Image> FindMatch()
+    {
+      // TODO: Return matches with max count
+
       for (int x = 0; x < GridWidth; x++)
       {
         var column = Enumerable.Range(0, GridHeight)
@@ -96,10 +118,7 @@
 
         if (matches.Count > 0)
         {
-          Debug.LogError("Matches Found in Column");
-
-          // TODO: Remove matches
-          // return true;
+          return matches;
         }
       }
 
@@ -116,12 +135,11 @@
 
         if (matches.Count > 0)
         {
-          Debug.LogError("Matches Found in Row");
-
-          // TODO: Remove matches
-          // return true;
+          return matches;
         }
       }
+
+      return Enumerable.Empty<Image>().ToList();
     }
   }
 }

@@ -12,6 +12,8 @@ GameObject:
   - 114: {fileID: 11470212}
   - 114: {fileID: 11496966}
   - 114: {fileID: 11428962}
+  - 114: {fileID: 11420648}
+  - 111: {fileID: 11171170}
   m_Layer: 5
   m_Name: Block
   m_TagString: Untagged
@@ -19,6 +21,33 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!111 &11171170
+Animation:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 192938}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 35a66270b24e22240afd6e6e2b675264, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 35a66270b24e22240afd6e6e2b675264, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
+--- !u!114 &11420648
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 192938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51b429bf96e1280488a65896fb8a8d51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ReplacementSprite: {fileID: 0}
 --- !u!114 &11428962
 MonoBehaviour:
   m_ObjectHideFlags: 1
