@@ -83,11 +83,33 @@
         var matches = FindMatch();
         if (matches.Count > 0)
         {
+          var changedBlocks = new List<GameObject>();
           foreach (var match in matches)
           {
-            var sprite = Sprites[Random.Range(0, Sprites.Length)];
-            match.gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
-            match.gameObject.GetComponent<Animation>().Play();
+              var index = GetCell(match.gameObject);
+              var y = (int) index.y;
+              for (var x = (int)index.x; x >= 0; x--)
+              {
+                  Sprite sprite;
+                  if (x == 0)
+                  {
+                      sprite = Sprites[Random.Range(0, Sprites.Length)];
+                  }
+                  else
+                  {
+                      sprite = _cells[x - 1, y].GetComponent<Image>().sprite;
+                  }
+
+                  _cells[x, y].GetComponent<BlockController>().ReplacementSprite = sprite;
+                  if (!changedBlocks.Contains(_cells[x, y].gameObject))
+                  {
+                      changedBlocks.Add(_cells[x, y].gameObject);
+                  }
+              }
+          }
+          foreach (var changedBlock in changedBlocks)
+          {
+              changedBlock.GetComponent<Animation>().Play();
           }
 
           yield return new WaitForSeconds(1.0f);
@@ -104,21 +126,21 @@
     private List<Image> FindMatch()
     {
       // TODO: Return matches with max count
-
+        var matches = new List<Image>();
       for (int x = 0; x < GridWidth; x++)
       {
         var column = Enumerable.Range(0, GridHeight)
           .Select(row => _cells[row, x])
           .ToList();
 
-        var matches = column
+        var colMatches = column
           .FindMatches((item1, item2) => item1.sprite == item2.sprite)
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (matches.Count > 0)
+        if (colMatches.Count > 2)
         {
-          return matches;
+            matches.AddRange(colMatches);
         }
       }
 
@@ -128,17 +150,19 @@
           .Select(column => _cells[y, column])
           .ToList();
 
-        var matches = row
+        var rowMatches = row
           .FindMatches((item1, item2) => item1.sprite == item2.sprite)
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (matches.Count > 0)
+        if (rowMatches.Count > 2)
         {
-          return matches;
+            matches.AddRange(rowMatches);
         }
       }
 
+        if (matches.Count > 2)
+            return matches;
       return Enumerable.Empty<Image>().ToList();
     }
   }
