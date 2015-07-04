@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 32d3c4c50f6225248a619bf2e41d416f
-timeCreated: 1435681655
+guid: a0a51e62c54b4764998df621f619821e
+timeCreated: 1435991897
 licenseType: Pro
 TextureImporter:
   fileIDToRecycleName: {}
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 1
+    enableMipMap: 0
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -49,7 +49,7 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites: []
-  spritePackingTag: Background
+  spritePackingTag: 
   userData: 
   assetBundleName: 
   assetBundleVariant: 

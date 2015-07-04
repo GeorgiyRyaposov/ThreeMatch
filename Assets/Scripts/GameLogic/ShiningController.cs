@@ -1,25 +1,36 @@
 ﻿using System.Runtime.InteropServices;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class ShiningController : MonoBehaviour
 {
-  public RectTransform Sun;
-  public RectTransform Moon;
+  public Image Shining;
+  public Image Background;
+  public Sprite[] ShiningSprites;
+  public Sprite[] BackgroundSprites;  
+  
   public int ShiningHours = 24;
-  public float MoveTime = 5.0f;
+  public float MoveTime = 0.8f;
 
   private RectTransform _shining;
-  private int _moveStep;
+  private int _shiningIndex = 0;
+  private float _moveStep;
   private int _hours = 0;
   private Vector3 _startPosition;
+  private Animation _animation;
 
   protected void Awake()
   {
-    _startPosition = Sun.localPosition;
-    _shining = Sun;
+    _shining = Shining.GetComponent<RectTransform>();
+    _startPosition = _shining.localPosition;
 
-    _moveStep = (int)(GetComponent<RectTransform>().rect.width - _shining.rect.width) / ShiningHours;
+    Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
+    Background.sprite = BackgroundSprites[_shiningIndex];
+
+    _moveStep = (GetComponent<RectTransform>().rect.width - _shining.rect.width) / ShiningHours;
+
+    _animation = GetComponent<Animation>();
   }
 
   protected void Update()
@@ -34,7 +45,7 @@ public class ShiningController : MonoBehaviour
       }
       else
       {
-        FlipShining();
+        _animation.Play();
 
         _hours = 0;
       }
@@ -56,20 +67,16 @@ public class ShiningController : MonoBehaviour
     }
   }
 
-  private void FlipShining()
+  public void FlipShining()
   {
-    if (Sun.gameObject.activeSelf)
+    _shiningIndex++;
+    if (_shiningIndex >= ShiningSprites.Length)
     {
-      Sun.gameObject.SetActive(false);
-      Moon.gameObject.SetActive(true);
-      _shining = Moon;
+      _shiningIndex = 0;
     }
-    else
-    {
-      Sun.gameObject.SetActive(true);
-      Moon.gameObject.SetActive(false);
-      _shining = Sun;
-    }
+
+    Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
+    Background.sprite = BackgroundSprites[_shiningIndex];
 
     _shining.localPosition = _startPosition;
   }
