@@ -50,6 +50,8 @@
         _animation.Play();
 
         _hours = 0;
+
+        Messenger.Instance.SendMessage("ReplaceBlocks");
       }
     }
 

@@ -4,23 +4,28 @@
   using System.Collections.Generic;
   using System.Linq;
   using Infrastructure;
+  using Messaging;
   using UnityEngine;
   using UnityEngine.UI;  
 
   public class GridController : MonoBehaviour
   {
     public GameObject Slot;
-    public Sprite[] Sprites;
+    public List<Sprite> DaylightSprites;
+    public List<Sprite> DarknessSprites;
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
     
     private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
     private StoreController _storeController;
+    private bool _isDaylight = true;
 
     protected void Awake()
     {
       _storeController = FindObjectOfType<StoreController>();
+
+      Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
     }
 
     protected void Start()
@@ -48,7 +53,7 @@
             matches.Add(_cells[x, y - 1].sprite);
           }
 
-          var sprites = Sprites.Except(matches).ToList();
+          var sprites = CurrentSprites.Except(matches).ToList();
           var sprite = sprites[Random.Range(0, sprites.Count)];
 
           slot.GetComponent<Image>().sprite = sprite;
@@ -95,7 +100,7 @@
 
           foreach (var match in matches)
           {
-            var sprite = Sprites[Random.Range(0, Sprites.Length)];
+            var sprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
             match.gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
             match.gameObject.GetComponent<Animation>().Play();
           }
@@ -109,6 +114,33 @@
 
         yield return null;
       }      
+    }
+
+    private void ReplaceAllBlocks()
+    {
+      for (int x = 0; x < GridWidth; x++)
+      {
+        for (int y = 0; y < GridHeight; y++)
+        {
+          var index = CurrentSprites.IndexOf(_cells[x, y].sprite);
+
+          var sprite = HiddenSprites[index];
+          _cells[x, y].gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
+          _cells[x, y].gameObject.GetComponent<Animation>().Play();
+        }
+      }
+
+      _isDaylight = !_isDaylight;
+    }
+
+    private List<Sprite> CurrentSprites
+    {
+      get { return _isDaylight ? DaylightSprites : DarknessSprites; }
+    }
+
+    private List<Sprite> HiddenSprites
+    {
+      get { return _isDaylight ? DarknessSprites : DaylightSprites; }
     }
 
     private List<Image> FindMatch()
