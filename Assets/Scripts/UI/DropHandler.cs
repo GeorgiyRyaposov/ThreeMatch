@@ -1,5 +1,6 @@
-namespace Assets.Scripts.GameLogic
+namespace Assets.Scripts.UI
 {
+  using GameLogic;
   using UnityEngine;
   using UnityEngine.EventSystems;
   using UnityEngine.UI;
@@ -29,13 +30,15 @@ namespace Assets.Scripts.GameLogic
       if (dropSprite != null)
       {
         var gridController = FindObjectOfType<GridController>();
-//        var canFlip = gridController.CanFlip(this.gameObject, data.pointerDrag);
-//        if (canFlip)
+        var canFlip = gridController.CanFlip(this.gameObject, data.pointerDrag);
+        if (canFlip)
         {
           data.pointerDrag.GetComponent<Image>().sprite = receivingImage.sprite;
           receivingImage.sprite = dropSprite;
           
-//          gridController.FindMatch();
+          // TODO: If matches not found re-flip
+          
+          gridController.Refresh();
         }      
       }			
     }

@@ -1,4 +1,4 @@
-namespace Assets.Scripts.GameLogic
+namespace Assets.Scripts.UI
 {
   using UnityEngine;
   using UnityEngine.EventSystems;
