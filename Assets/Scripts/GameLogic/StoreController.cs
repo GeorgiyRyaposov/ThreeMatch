@@ -1,14 +1,19 @@
-﻿using System;
-using System.Text;
-using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
-public class StoreController : MonoBehaviour 
+﻿namespace Assets.Scripts.GameLogic
 {
-  private class StoreItem
+  using System;
+  using System.Linq;
+  using System.Text;
+  using Messaging;
+  using UnityEngine;
+  using UnityEngine.UI;
+
+  [Serializable]
+  public class StoreItem
   {
     public string Name;
+    public Sprite Image;  
+  
+    [HideInInspector]
     public int Amount;
 
     public override string ToString()
@@ -17,30 +22,46 @@ public class StoreController : MonoBehaviour
     }
   }
 
-  public Text Log;
-
-  private readonly StoreItem[] _store = new[]
+  public class StoreController : MonoBehaviour 
   {
-    new StoreItem() { Name = "Food" },
-    new StoreItem() { Name = "Alchemy" },
-    new StoreItem() { Name = "Leather" },
-    new StoreItem() { Name = "Ore" },
-    new StoreItem() { Name = "Wood" },
-  };
+    public Text Log;
+    public StoreItem[] Store;
 
-  protected void Awake()
-  {
-    UpdateLog();
-  }
-
-  private void UpdateLog()
-  {
-    var result = new StringBuilder();
-    foreach (var item in _store)
+    protected void Awake()
     {
-      result.AppendLine(item.ToString());
+      UpdateLog();
     }
 
-    Log.text = result.ToString();
+  protected void Update()
+  {
+    if (Input.GetKeyUp(KeyCode.Space))
+    {
+      AddItem("Berry_1", 10);
+    }
+  }
+
+    public void AddItem(string itemName, int amount)
+    {
+      var item = Store.FirstOrDefault(x => x.Image.name == itemName);
+      if (item != null)
+      {
+        item.Amount += amount;
+
+        Messenger.Instance.SendMessage("AddHour");
+
+        UpdateLog();
+      }
+    }
+
+    private void UpdateLog()
+    {
+      var result = new StringBuilder();
+      foreach (var item in Store)
+      {
+        result.AppendLine(item.ToString());
+      }
+
+      Log.text = result.ToString();
+    }
   }
 }

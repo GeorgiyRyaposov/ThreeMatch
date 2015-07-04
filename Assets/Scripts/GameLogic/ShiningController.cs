@@ -1,41 +1,43 @@
-﻿using System.Runtime.InteropServices;
-using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
-public class ShiningController : MonoBehaviour
+﻿namespace Assets.Scripts.GameLogic
 {
-  public Image Shining;
-  public Image Background;
-  public Sprite[] ShiningSprites;
-  public Sprite[] BackgroundSprites;  
-  
-  public int ShiningHours = 24;
-  public float MoveTime = 0.8f;
+  using System.Collections;
+  using Messaging;
+  using UnityEngine;
+  using UnityEngine.UI;
 
-  private RectTransform _shining;
-  private int _shiningIndex = 0;
-  private float _moveStep;
-  private int _hours = 0;
-  private Vector3 _startPosition;
-  private Animation _animation;
-
-  protected void Awake()
+  public class ShiningController : MonoBehaviour
   {
-    _shining = Shining.GetComponent<RectTransform>();
-    _startPosition = _shining.localPosition;
+    public Image Shining;
+    public Image Background;
+    public Sprite[] ShiningSprites;
+    public Sprite[] BackgroundSprites;  
+  
+    public int ShiningHours = 24;
+    public float MoveTime = 0.8f;
 
-    Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
-    Background.sprite = BackgroundSprites[_shiningIndex];
+    private RectTransform _shining;
+    private int _shiningIndex = 0;
+    private float _moveStep;
+    private int _hours = 0;
+    private Vector3 _startPosition;
+    private Animation _animation;
 
-    _moveStep = (GetComponent<RectTransform>().rect.width - _shining.rect.width) / ShiningHours;
+    protected void Awake()
+    {
+      _shining = Shining.GetComponent<RectTransform>();
+      _startPosition = _shining.localPosition;
 
-    _animation = GetComponent<Animation>();
-  }
+      Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
+      Background.sprite = BackgroundSprites[_shiningIndex];
 
-  protected void Update()
-  {  
-    if (Input.GetKeyUp(KeyCode.Space))
+      _moveStep = (GetComponent<RectTransform>().rect.width - _shining.rect.width) / ShiningHours;
+
+      _animation = GetComponent<Animation>();
+
+      Messenger.Instance.AddHandler("AddHour", AddHour);
+    }
+
+    private void AddHour()
     {
       _hours++;
 
@@ -50,34 +52,42 @@ public class ShiningController : MonoBehaviour
         _hours = 0;
       }
     }
-  }
 
-  private IEnumerator MoveShining()
-  {
-    var start = _shining.localPosition;
-    var target = _shining.localPosition + Vector3.right * _moveStep;
+//    protected void Update()
+//    {  
+//      if (Input.GetKeyUp(KeyCode.Space))
+//      {
+//        AddHour();
+//      }
+//    }
 
-    var elapsedTime = 0.0f;
-    while (elapsedTime < MoveTime)
+    private IEnumerator MoveShining()
     {
-      _shining.localPosition = Vector3.Lerp(start, target, elapsedTime / MoveTime);
-      elapsedTime += Time.deltaTime;
+      var start = _shining.localPosition;
+      var target = _shining.localPosition + Vector3.right * _moveStep;
+
+      var elapsedTime = 0.0f;
+      while (elapsedTime < MoveTime)
+      {
+        _shining.localPosition = Vector3.Lerp(start, target, elapsedTime / MoveTime);
+        elapsedTime += Time.deltaTime;
       
-      yield return null;
+        yield return null;
+      }
     }
-  }
 
-  public void FlipShining()
-  {
-    _shiningIndex++;
-    if (_shiningIndex >= ShiningSprites.Length)
+    public void FlipShining()
     {
-      _shiningIndex = 0;
+      _shiningIndex++;
+      if (_shiningIndex >= ShiningSprites.Length)
+      {
+        _shiningIndex = 0;
+      }
+
+      Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
+      Background.sprite = BackgroundSprites[_shiningIndex];
+
+      _shining.localPosition = _startPosition;
     }
-
-    Shining.GetComponent<Image>().sprite = ShiningSprites[_shiningIndex];
-    Background.sprite = BackgroundSprites[_shiningIndex];
-
-    _shining.localPosition = _startPosition;
   }
 }

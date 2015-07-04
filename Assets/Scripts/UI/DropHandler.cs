@@ -1,6 +1,6 @@
-namespace Assets.Scripts.GameLogic
+namespace Assets.Scripts.UI
 {
-  using System.Collections;
+  using GameLogic;
   using UnityEngine;
   using UnityEngine.EventSystems;
   using UnityEngine.UI;

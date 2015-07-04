@@ -1,27 +1,29 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
-[RequireComponent(typeof(Image))]
-public class BlockController : MonoBehaviour
+﻿namespace Assets.Scripts.GameLogic
 {
-  [HideInInspector]
-  public Sprite ReplacementSprite;
+  using UnityEngine;
+  using UnityEngine.UI;
 
-  private Image _image;
-
-  protected void Awake()
+  [RequireComponent(typeof(Image))]
+  public class BlockController : MonoBehaviour
   {
-    _image = GetComponent<Image>();
-  }
+    [HideInInspector]
+    public Sprite ReplacementSprite;
 
-  public void ReplaceSprite()
-  {
-    if (ReplacementSprite)
+    private Image _image;
+
+    protected void Awake()
     {
-      _image.sprite = ReplacementSprite;
+      _image = GetComponent<Image>();
+    }
 
-      ReplacementSprite = null;
-    }    
+    public void ReplaceSprite()
+    {
+      if (ReplacementSprite)
+      {
+        _image.sprite = ReplacementSprite;
+
+        ReplacementSprite = null;
+      }    
+    }
   }
 }
