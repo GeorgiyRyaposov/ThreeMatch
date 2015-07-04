@@ -543,6 +543,7 @@ MonoBehaviour:
   - Name: Wood
     Image: {fileID: 21300000, guid: c4ce5b2d0a0496c41a0b27559b6b2b5d, type: 3}
     Amount: 0
+  StoreUnit: 12
 --- !u!1 &924562433
 GameObject:
   m_ObjectHideFlags: 0

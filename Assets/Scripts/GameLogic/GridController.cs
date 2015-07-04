@@ -14,7 +14,14 @@
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
+    
     private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
+    private StoreController _storeController;
+
+    protected void Awake()
+    {
+      _storeController = FindObjectOfType<StoreController>();
+    }
 
     protected void Start()
     {
@@ -83,6 +90,9 @@
         var matches = FindMatch();
         if (matches.Count > 0)
         {
+          // TODO: Replace with messaging system
+          _storeController.AddItem(matches.First().sprite.name, matches.Count);
+
           foreach (var match in matches)
           {
             var sprite = Sprites[Random.Range(0, Sprites.Length)];

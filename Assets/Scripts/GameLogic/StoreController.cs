@@ -27,27 +27,34 @@
     public Text Log;
     public StoreItem[] Store;
 
+    public int StoreUnit = 12;
+
     protected void Awake()
     {
       UpdateLog();
     }
 
-  protected void Update()
-  {
-    if (Input.GetKeyUp(KeyCode.Space))
-    {
-      AddItem("Berry_1", 10);
-    }
-  }
+//  protected void Update()
+//  {
+//    if (Input.GetKeyUp(KeyCode.Space))
+//    {
+//      AddItem("Berry_1", 10);
+//    }
+//  }
 
     public void AddItem(string itemName, int amount)
     {
       var item = Store.FirstOrDefault(x => x.Image.name == itemName);
       if (item != null)
       {
+        var units = item.Amount / StoreUnit;
+
         item.Amount += amount;
 
-        Messenger.Instance.SendMessage("AddHour");
+        if ((item.Amount/StoreUnit) > units)
+        {
+          Messenger.Instance.SendMessage("AddHour");
+        }        
 
         UpdateLog();
       }
