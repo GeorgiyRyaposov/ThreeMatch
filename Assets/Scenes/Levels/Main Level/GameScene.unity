@@ -1116,6 +1116,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9a3a5d9c610bd1749917131e44347043, type: 3}
   - {fileID: 21300000, guid: b24704db33930eb4d87dbdba1cdd6148, type: 3}
   - {fileID: 21300000, guid: c95b4c2a5ea2b284ab6e1847f54f39e5, type: 3}
+  FallingBlock: {fileID: 146756, guid: 88fcb271c710abf46bd68d9cd220df3f, type: 2}
 --- !u!1 &1755386619
 GameObject:
   m_ObjectHideFlags: 0

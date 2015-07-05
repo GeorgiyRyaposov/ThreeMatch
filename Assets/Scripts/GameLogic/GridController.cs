@@ -16,6 +16,8 @@
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
+
+    public GameObject FallingBlock;
     
     private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
     private StoreController _storeController;
@@ -26,6 +28,7 @@
       _storeController = FindObjectOfType<StoreController>();
 
       Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
+      Messenger.Instance.AddHandler("BlockDestroyed", () => { _blockCount--; });
     }
 
     protected void Start()
@@ -90,6 +93,8 @@
 
     private IEnumerator RemoveMatches()
     {
+      yield return new WaitForSeconds(0.2f);
+
       while (true)
       {
         var matches = FindMatch();
@@ -98,14 +103,79 @@
           // TODO: Replace with messaging system
           _storeController.AddItem(matches.First().sprite.name, matches.Count);
 
+          _blockCount = 0;
+
           foreach (var match in matches)
           {
-            var sprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
-            match.gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
-            match.gameObject.GetComponent<Animation>().Play();
+            match.CrossFadeAlpha(0.0f, 0.0f, false);
+
+            var cell = GetCell(match.gameObject);
+            var trgRow = (int) cell.x;
+            var column = (int) cell.y;
+
+            for (int curRow = (int) cell.x - 1; curRow >= 0; curRow--)
+            {
+              var image = _cells[curRow, column];
+
+              if (image.color.a > 0)
+              {
+                var block = Instantiate(FallingBlock, image.transform.position, Quaternion.identity) as GameObject;
+                if (block)
+                {
+                  block.transform.SetParent(GameObject.Find("Canvas").transform, true);
+                  block.transform.localScale = Vector3.one;
+                  block.GetComponent<Image>().sprite = image.sprite;
+                  block.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
+                  block.GetComponent<FallingBlockController>().enabled = true;
+
+                  _blockCount++;
+                }
+
+                _cells[trgRow, column].sprite = image.sprite;
+
+                trgRow = curRow;
+                image.CrossFadeAlpha(0.0f, 0.0f, false);
+              }
+            }
+
+            var finalSprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
+            var finalBlock = Instantiate(FallingBlock, _cells[trgRow, column].transform.position + new Vector3(0.0f, 0.9f, 0.0f), Quaternion.identity) as GameObject;
+            if (finalBlock)
+            {
+              finalBlock.transform.SetParent(GameObject.Find("Canvas").transform, true);
+              finalBlock.transform.localScale = Vector3.one;
+              finalBlock.GetComponent<Image>().sprite = finalSprite;
+              finalBlock.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
+              finalBlock.GetComponent<FallingBlockController>().enabled = true;
+
+              _blockCount++;
+            }
+
+            _cells[trgRow, column].sprite = finalSprite;
           }
 
-          yield return new WaitForSeconds(1.0f);
+//          var fallingBlocksExist = true;
+//          while (fallingBlocksExist)
+//          {
+//            fallingBlocksExist = FindObjectsOfType<FallingBlockController>().Length > 0;
+//
+//            yield return null;
+//          }
+
+          while (_blockCount > 0)
+          {
+            yield return null;
+          }
+
+          for (int x = 0; x < GridWidth; x++)
+          {
+            for (int y = 0; y < GridHeight; y++)
+            {
+              _cells[x, y].CrossFadeAlpha(1.0f, 0.0f, false);
+            }
+          }
+
+          yield return null;
         }
         else
         {
@@ -115,6 +185,8 @@
         yield return null;
       }      
     }
+
+    private int _blockCount;
 
     private void ReplaceAllBlocks()
     {
