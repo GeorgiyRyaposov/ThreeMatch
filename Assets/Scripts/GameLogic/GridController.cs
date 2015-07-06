@@ -4,17 +4,32 @@
   using System.Collections.Generic;
   using System.Linq;
   using Infrastructure;
+  using Messaging;
   using UnityEngine;
   using UnityEngine.UI;  
 
   public class GridController : MonoBehaviour
   {
     public GameObject Slot;
-    public Sprite[] Sprites;
+    public List<Sprite> DaylightSprites;
+    public List<Sprite> DarknessSprites;
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
+
+    public GameObject FallingBlock;
+    
     private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
+    private StoreController _storeController;
+    private bool _isDaylight = true;
+
+    protected void Awake()
+    {
+      _storeController = FindObjectOfType<StoreController>();
+
+      Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
+      Messenger.Instance.AddHandler("BlockDestroyed", () => { _blockCount--; });
+    }
 
     protected void Start()
     {
@@ -41,7 +56,7 @@
             matches.Add(_cells[x, y - 1].sprite);
           }
 
-          var sprites = Sprites.Except(matches).ToList();
+          var sprites = CurrentSprites.Except(matches).ToList();
           var sprite = sprites[Random.Range(0, sprites.Count)];
 
           slot.GetComponent<Image>().sprite = sprite;
@@ -78,41 +93,89 @@
 
     private IEnumerator RemoveMatches()
     {
+      yield return new WaitForSeconds(0.2f);
+
       while (true)
       {
         var matches = FindMatch();
         if (matches.Count > 0)
         {
-          var changedBlocks = new List<GameObject>();
+          // TODO: Replace with messaging system
+          _storeController.AddItem(matches.First().sprite.name, matches.Count);
+
+          _blockCount = 0;
+
           foreach (var match in matches)
           {
-              var index = GetCell(match.gameObject);
-              var y = (int) index.y;
-              for (var x = (int)index.x; x >= 0; x--)
+            match.CrossFadeAlpha(0.0f, 0.0f, false);
+
+            var cell = GetCell(match.gameObject);
+            var trgRow = (int) cell.x;
+            var column = (int) cell.y;
+
+            for (int curRow = (int) cell.x - 1; curRow >= 0; curRow--)
+            {
+              var image = _cells[curRow, column];
+
+              if (image.color.a > 0)
               {
-                  Sprite sprite;
-                  if (x == 0)
-                  {
-                      sprite = Sprites[Random.Range(0, Sprites.Length)];
-                  }
-                  else
-                  {
-                      sprite = _cells[x - 1, y].GetComponent<Image>().sprite;
-                  }
+                var block = Instantiate(FallingBlock, image.transform.position, Quaternion.identity) as GameObject;
+                if (block)
+                {
+                  block.transform.SetParent(GameObject.Find("Canvas").transform, true);
+                  block.transform.localScale = Vector3.one;
+                  block.GetComponent<Image>().sprite = image.sprite;
+                  block.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
+                  block.GetComponent<FallingBlockController>().enabled = true;
 
-                  _cells[x, y].GetComponent<BlockController>().ReplacementSprite = sprite;
-                  if (!changedBlocks.Contains(_cells[x, y].gameObject))
-                  {
-                      changedBlocks.Add(_cells[x, y].gameObject);
-                  }
+                  _blockCount++;
+                }
+
+                _cells[trgRow, column].sprite = image.sprite;
+
+                trgRow = curRow;
+                image.CrossFadeAlpha(0.0f, 0.0f, false);
               }
-          }
-          foreach (var changedBlock in changedBlocks)
-          {
-              changedBlock.GetComponent<Animation>().Play();
+            }
+
+            var finalSprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
+            var finalBlock = Instantiate(FallingBlock, _cells[trgRow, column].transform.position + new Vector3(0.0f, 0.9f, 0.0f), Quaternion.identity) as GameObject;
+            if (finalBlock)
+            {
+              finalBlock.transform.SetParent(GameObject.Find("Canvas").transform, true);
+              finalBlock.transform.localScale = Vector3.one;
+              finalBlock.GetComponent<Image>().sprite = finalSprite;
+              finalBlock.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
+              finalBlock.GetComponent<FallingBlockController>().enabled = true;
+
+              _blockCount++;
+            }
+
+            _cells[trgRow, column].sprite = finalSprite;
           }
 
-          yield return new WaitForSeconds(1.0f);
+//          var fallingBlocksExist = true;
+//          while (fallingBlocksExist)
+//          {
+//            fallingBlocksExist = FindObjectsOfType<FallingBlockController>().Length > 0;
+//
+//            yield return null;
+//          }
+
+          while (_blockCount > 0)
+          {
+            yield return null;
+          }
+
+          for (int x = 0; x < GridWidth; x++)
+          {
+            for (int y = 0; y < GridHeight; y++)
+            {
+              _cells[x, y].CrossFadeAlpha(1.0f, 0.0f, false);
+            }
+          }
+
+          yield return null;
         }
         else
         {
@@ -123,24 +186,53 @@
       }      
     }
 
+    private int _blockCount;
+
+    private void ReplaceAllBlocks()
+    {
+      for (int x = 0; x < GridWidth; x++)
+      {
+        for (int y = 0; y < GridHeight; y++)
+        {
+          var index = CurrentSprites.IndexOf(_cells[x, y].sprite);
+
+          var sprite = HiddenSprites[index];
+          _cells[x, y].gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
+          _cells[x, y].gameObject.GetComponent<Animation>().Play();
+        }
+      }
+
+      _isDaylight = !_isDaylight;
+    }
+
+    private List<Sprite> CurrentSprites
+    {
+      get { return _isDaylight ? DaylightSprites : DarknessSprites; }
+    }
+
+    private List<Sprite> HiddenSprites
+    {
+      get { return _isDaylight ? DarknessSprites : DaylightSprites; }
+    }
+
     private List<Image> FindMatch()
     {
       // TODO: Return matches with max count
-        var matches = new List<Image>();
+
       for (int x = 0; x < GridWidth; x++)
       {
         var column = Enumerable.Range(0, GridHeight)
           .Select(row => _cells[row, x])
           .ToList();
 
-        var colMatches = column
+        var matches = column
           .FindMatches((item1, item2) => item1.sprite == item2.sprite)
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (colMatches.Count > 2)
+        if (matches.Count > 0)
         {
-            matches.AddRange(colMatches);
+          return matches;
         }
       }
 
@@ -150,19 +242,17 @@
           .Select(column => _cells[y, column])
           .ToList();
 
-        var rowMatches = row
+        var matches = row
           .FindMatches((item1, item2) => item1.sprite == item2.sprite)
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (rowMatches.Count > 2)
+        if (matches.Count > 0)
         {
-            matches.AddRange(rowMatches);
+          return matches;
         }
       }
 
-        if (matches.Count > 2)
-            return matches;
       return Enumerable.Empty<Image>().ToList();
     }
   }
