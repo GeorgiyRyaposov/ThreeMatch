@@ -19,13 +19,14 @@
 
     public GameObject FallingBlock;
     
-    private readonly Image[,] _cells = new Image[GridWidth, GridHeight];
+    private readonly SpriteRenderer[,] _cells = new SpriteRenderer[GridWidth, GridHeight];
     private StoreController _storeController;
     private bool _isDaylight = true;
 
     protected void Awake()
     {
       _storeController = FindObjectOfType<StoreController>();
+      
 
       Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
       Messenger.Instance.AddHandler("BlockDestroyed", () => { _blockCount--; });
@@ -37,13 +38,14 @@
       {
         for (int y = 0; y < GridHeight; y++)
         {
-          var slot = Instantiate(Slot);
+          var slot = Instantiate(Slot) as GameObject;
           slot.transform.SetParent(transform, false);
-          
+          slot.transform.localPosition = new Vector3(x, y, 0.0f);
+
           // To fix sorting order of canvas' children
-          var canvas = slot.AddComponent<Canvas>();
-          canvas.overrideSorting = true;
-          canvas.sortingOrder = 1;
+          //var canvas = slot.AddComponent<Canvas>();
+          //canvas.overrideSorting = true;
+          //canvas.sortingOrder = 1;
 
           var matches = new List<Sprite>();
           
@@ -51,7 +53,7 @@
           {
             matches.Add(_cells[x - 1, y].sprite);
           }
-          if (y > 1 && _cells[x, y - 2].sprite == _cells[x, y - 1].sprite)
+          if (y > 1 && _cells[x, y - 2] == _cells[x, y - 1])
           {
             matches.Add(_cells[x, y - 1].sprite);
           }
@@ -59,8 +61,8 @@
           var sprites = CurrentSprites.Except(matches).ToList();
           var sprite = sprites[Random.Range(0, sprites.Count)];
 
-          slot.GetComponent<Image>().sprite = sprite;
-          _cells[x, y] = slot.GetComponent<Image>();
+          slot.GetComponent<SpriteRenderer>().sprite = sprite;
+          _cells[x, y] = slot.GetComponent<SpriteRenderer>();
         }
       }
     }
@@ -79,6 +81,102 @@
       }
 
       return Vector2.zero;
+    }
+
+    public IEnumerator TrySwap(Vector3 startPosition, GameObject draggableBlock, GameObject swappingBlock)
+    {
+      var cellIndex = GetCell(swappingBlock);
+      var matchingSprite = swappingBlock.GetComponent<SpriteRenderer>().sprite.name;
+      var matches = new List<GameObject>();
+      var matchesByX = new List<GameObject>();
+      var matchesByY = new List<GameObject>();
+      var matchIndexes = new List<Index>();
+      var cellX = (int)cellIndex.x;
+      var cellY = (int)cellIndex.y;
+
+      for (int x = cellX; x < GridHeight; x++)
+      {
+        if(_cells[x, cellY].sprite.name == matchingSprite)
+        {
+          matchIndexes.Add(new Index(x, cellY));
+          matchesByX.Add(_cells[x, cellY].gameObject);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      for (int x = cellX; x >= 0; x--)
+      {
+        if (_cells[x, cellY].sprite.name == matchingSprite)
+        {
+          matchIndexes.Add(new Index(x, cellY));
+          matchesByX.Add(_cells[x, cellY].gameObject);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      for (int y = cellY; y < GridWidth; y++)
+      {
+        if (_cells[cellX, y].sprite.name == matchingSprite)
+        {
+          matchIndexes.Add(new Index(cellX, y));
+          matchesByY.Add(_cells[cellX, y].gameObject);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      for (int y = cellY; y >= 0; y--)
+      {
+        if (_cells[cellX, y].sprite.name == matchingSprite)
+        {
+          matchIndexes.Add(new Index(cellX, y));
+          matchesByY.Add(_cells[cellX, y].gameObject);
+        }
+        else
+        {
+          break;
+        }
+      }
+
+      //not enough matches, return block 
+      Debug.Log("matches: " + matches.Count);
+      if (matches.Count < 3)
+      {
+        draggableBlock.GetComponent<BlockMover>().TargetPosition = startPosition;
+        yield return new WaitForSeconds(1.0f);
+        yield break;
+      }
+
+      var swappingTransform = swappingBlock.GetComponent<Transform>();
+
+      var draggableBlockMover = draggableBlock.GetComponent<BlockMover>();
+      var swappingBlockMover = swappingBlock.GetComponent<BlockMover>();
+
+      draggableBlockMover.TargetPosition = swappingTransform.position;
+      swappingBlockMover.TargetPosition = startPosition;
+
+      var swapCellIndex = GetCell(swappingBlock);
+      _cells[cellX, cellY] = swappingBlock.GetComponent<SpriteRenderer>();
+      _cells[(int)swapCellIndex.x, (int)swapCellIndex.y] = draggableBlock.GetComponent<SpriteRenderer>();
+    }
+
+    class Index
+    {
+      public Index(int x, int y)
+      {
+        X = x;
+        Y = y;
+      }
+      public int X { get; set; }
+      public int Y { get; set; }
     }
 
     public bool CanFlip(GameObject first, GameObject second)
@@ -107,7 +205,7 @@
 
           foreach (var match in matches)
           {
-            match.CrossFadeAlpha(0.0f, 0.0f, false);
+            //match.CrossFadeAlpha(0.0f, 0.0f, false);
 
             var cell = GetCell(match.gameObject);
             var trgRow = (int) cell.x;
@@ -134,7 +232,7 @@
                 _cells[trgRow, column].sprite = image.sprite;
 
                 trgRow = curRow;
-                image.CrossFadeAlpha(0.0f, 0.0f, false);
+                //image.CrossFadeAlpha(0.0f, 0.0f, false);
               }
             }
 
@@ -171,7 +269,7 @@
           {
             for (int y = 0; y < GridHeight; y++)
             {
-              _cells[x, y].CrossFadeAlpha(1.0f, 0.0f, false);
+              //_cells[x, y].CrossFadeAlpha(1.0f, 0.0f, false);
             }
           }
 
@@ -215,7 +313,7 @@
       get { return _isDaylight ? DarknessSprites : DaylightSprites; }
     }
 
-    private List<Image> FindMatch()
+    private List<SpriteRenderer> FindMatch()
     {
       // TODO: Return matches with max count
 
@@ -253,7 +351,7 @@
         }
       }
 
-      return Enumerable.Empty<Image>().ToList();
+      return Enumerable.Empty<SpriteRenderer>().ToList();
     }
   }
 }
