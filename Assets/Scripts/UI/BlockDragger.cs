@@ -14,10 +14,12 @@ namespace Assets.Scripts.UI
     private GridController _gridController;
     private Vector3 _startPosition;
     private BoxCollider2D _collider;
+    private SpriteRenderer _spriteRenderer;
     void Awake()
     {
       _gridController = FindObjectOfType<GridController>();
       _collider = GetComponent<BoxCollider2D>();
+      _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -34,14 +36,15 @@ namespace Assets.Scripts.UI
     void OnMouseDown()
     {
       _dragging = true;
-
+      _spriteRenderer.sortingOrder = 1;
       _startPosition = transform.position;
+
     }
 
     void OnMouseUp()
     {
       _dragging = false;
-
+      _spriteRenderer.sortingOrder = 0;
       _collider.enabled = false;
       var hit = Physics2D.Raycast(transform.position, Vector2.zero);
       _collider.enabled = true;

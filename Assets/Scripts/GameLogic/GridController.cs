@@ -41,6 +41,7 @@
           var slot = Instantiate(Slot) as GameObject;
           slot.transform.SetParent(transform, false);
           slot.transform.localPosition = new Vector3(x, y, 0.0f);
+          slot.GetComponent<BlockMover>().TargetPosition = slot.transform.position;
 
           // To fix sorting order of canvas' children
           //var canvas = slot.AddComponent<Canvas>();
@@ -86,8 +87,8 @@
     public IEnumerator TrySwap(Vector3 startPosition, GameObject draggableBlock, GameObject swappingBlock)
     {
       var cellIndex = GetCell(swappingBlock);
-      var matchingSprite = swappingBlock.GetComponent<SpriteRenderer>().sprite.name;
-      var matches = new List<GameObject>();
+      var matchingSprite = draggableBlock.GetComponent<SpriteRenderer>().sprite.name;
+      var matches = new List<GameObject> { draggableBlock };
       var matchesByX = new List<GameObject>();
       var matchesByY = new List<GameObject>();
       var matchIndexes = new List<Index>();
@@ -120,6 +121,11 @@
         }
       }
 
+      if(matchesByX.Count > 1)
+      {
+        matches.AddRange(matchesByX);
+      }
+
       for (int y = cellY; y < GridWidth; y++)
       {
         if (_cells[cellX, y].sprite.name == matchingSprite)
@@ -144,6 +150,11 @@
         {
           break;
         }
+      }
+
+      if (matchesByY.Count > 1)
+      {
+        matches.AddRange(matchesByY);
       }
 
       //not enough matches, return block 
