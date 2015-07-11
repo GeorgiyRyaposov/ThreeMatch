@@ -48,13 +48,16 @@ namespace Assets.Scripts.UI
       _dragging = false;
       _spriteRenderer.sortingOrder = 0;
       _collider.enabled = false;
-      var hit = Physics2D.Raycast(transform.position, Vector3.down, 10.0f);
+      var hit = Physics2D.Raycast(transform.position, Vector3.down, 5.0f);
       _collider.enabled = true;
 
-      if (hit.collider == null)
-      { 
+      if (hit.collider == null || hit.collider.GetComponent<BlockMover>() == null)
+      {
+        _blockMover.TargetPosition = _startPosition;
+        _blockMover.enabled = true;
         return;
       }
+
       _blockMover.enabled = true;
       StartCoroutine(_gridController.TrySwap(_startPosition, gameObject, hit.collider.gameObject));
     }

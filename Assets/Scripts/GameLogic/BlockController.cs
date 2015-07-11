@@ -3,17 +3,17 @@
   using UnityEngine;
   using UnityEngine.UI;
 
-  [RequireComponent(typeof(Image))]
+  [RequireComponent(typeof(SpriteRenderer))]
   public class BlockController : MonoBehaviour
   {
     [HideInInspector]
     public Sprite ReplacementSprite;
 
-    private Image _image;
+    private SpriteRenderer _image;
 
     protected void Awake()
     {
-      _image = GetComponent<Image>();
+      _image = GetComponent<SpriteRenderer>();
     }
 
     public void ReplaceSprite()

@@ -16,10 +16,9 @@
 
     public static int GridWidth = 8;
     public static int GridHeight = 8;
-
-    public GameObject FallingBlock;
     
     private readonly SpriteRenderer[,] _cells = new SpriteRenderer[GridWidth, GridHeight];
+    private readonly Vector3[,] _defaultPositions = new Vector3[GridWidth, GridHeight];
     private StoreController _storeController;
     private bool _isDaylight = true;
 
@@ -41,12 +40,7 @@
           slot.transform.SetParent(transform, false);
           slot.transform.localPosition = new Vector3(x, y, 0.0f);
           slot.GetComponent<BlockMover>().TargetPosition = slot.transform.position;
-
-          // To fix sorting order of canvas' children
-          //var canvas = slot.AddComponent<Canvas>();
-          //canvas.overrideSorting = true;
-          //canvas.sortingOrder = 1;
-
+          
           var matches = new List<Sprite>();
           
           if (x > 1 && _cells[x - 2, y].sprite == _cells[x - 1, y].sprite)
@@ -63,6 +57,7 @@
 
           slot.GetComponent<SpriteRenderer>().sprite = sprite;
           _cells[x, y] = slot.GetComponent<SpriteRenderer>();
+          _defaultPositions[x, y] = slot.transform.position;
         }
       }
     }
@@ -90,7 +85,7 @@
       var swapCellY = (int)swapCellIndex.y;
 
       var dragCellIndex = GetCell(draggableBlock);
-      var swappingTransformPosition = swappingBlock.GetComponent<Transform>().position;
+      var swappingTransformPosition = _defaultPositions[swapCellX, swapCellY];
 
       var draggableBlockMover = draggableBlock.GetComponent<BlockMover>();
       var swappingBlockMover = swappingBlock.GetComponent<BlockMover>();
@@ -245,8 +240,8 @@
               _cells[column, trgRow] = curBlock;
               _cells[column, curRow] = lowBlock;
 
-              var targetPosition = curBlock.transform.position;
-              var lowerPosition = lowBlock.transform.position;
+              var targetPosition = _defaultPositions[column, curRow];
+              var lowerPosition = _defaultPositions[column, trgRow];
 
               curBlock.GetComponent<BlockMover>().TargetPosition = lowerPosition;
               lowBlock.GetComponent<BlockMover>().TargetPosition = targetPosition;
@@ -286,8 +281,8 @@
         {
           var index = CurrentSprites.IndexOf(_cells[x, y].sprite);
 
-          var sprite = HiddenSprites[index];
-          _cells[x, y].sprite = sprite;
+          var sprite = HiddenSprites[index]; 
+          _cells[x, y].gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
           _cells[x, y].gameObject.GetComponent<Animation>().Play();
         }
       }
