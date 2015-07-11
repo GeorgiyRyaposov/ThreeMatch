@@ -1,20 +1,22 @@
 ﻿using UnityEngine;
-using Assets.Scripts.Messaging;
 
-public class BlockMover : MonoBehaviour
+namespace Assets.Scripts.GameLogic
 {
-  [HideInInspector]
-  public Vector3 TargetPosition;
-  
-  protected void Update()
+  public class BlockMover : MonoBehaviour
   {
-    transform.position = Vector3.Lerp(transform.position, TargetPosition, 5.0f * Time.deltaTime);
+    [HideInInspector]
+    public Vector3 TargetPosition;
+  
+    protected void Update()
+    {
+      transform.position = Vector3.Lerp(transform.position, TargetPosition, 50.0f * Time.deltaTime);
 
-    //if (Vector2.Distance(transform.position, TargetPosition) < float.Epsilon)
-    //{
-    //  Messenger.Instance.SendMessage("BlockDestroyed");
+      //if (Vector2.Distance(transform.position, TargetPosition) < float.Epsilon)
+      //{
+      //  Messenger.Instance.SendMessage("BlockDestroyed");
 
-    //  Destroy(this.gameObject);
-    //}
+      //  Destroy(this.gameObject);
+      //}
+    }
   }
 }

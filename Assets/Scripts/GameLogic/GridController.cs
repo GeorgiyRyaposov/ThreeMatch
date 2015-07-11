@@ -29,7 +29,6 @@
       
 
       Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
-      Messenger.Instance.AddHandler("BlockDestroyed", () => { _blockCount--; });
     }
 
     protected void Start()
@@ -183,15 +182,8 @@
         yield return new WaitForSeconds(1.0f);
         yield break;
       }
-
-      foreach (var match in matches)
-      {
-        match.GetComponent<SpriteRenderer>().color = Color.red;
-      }
-
       
-
-      
+      Refresh();
     }
 
     class Index
@@ -217,101 +209,75 @@
 
     private IEnumerator RemoveMatches()
     {
-      yield return new WaitForSeconds(0.2f);
-
       while (true)
       {
         var matches = FindMatch();
+        
         if (matches.Count > 0)
         {
           // TODO: Replace with messaging system
           _storeController.AddItem(matches.First().sprite.name, matches.Count);
-
-          _blockCount = 0;
-
+          
           foreach (var match in matches)
           {
-            //match.CrossFadeAlpha(0.0f, 0.0f, false);
+            match.GetComponent<SpriteRenderer>().enabled = false;
+            match.GetComponent<SpriteRenderer>().sprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
 
             var cell = GetCell(match.gameObject);
-            var trgRow = (int) cell.x;
-            var column = (int) cell.y;
+            var column = (int)cell.x;
+            var trgRow = (int)cell.y;
 
-            for (int curRow = (int) cell.x - 1; curRow >= 0; curRow--)
+            if (trgRow == GridHeight - 1)
             {
-              var image = _cells[curRow, column];
+              match.GetComponent<SpriteRenderer>().enabled = true;
+              var curBlock = _cells[column, trgRow];
+              var blockMover = curBlock.GetComponent<BlockMover>();
+              blockMover.enabled = false;
+              curBlock.transform.position += Vector3.up;
+              blockMover.enabled = true;
+            }
+            
+            for (int curRow = trgRow + 1; curRow < GridHeight; curRow++)
+            {
+              var curBlock = _cells[column, curRow];
+              var lowBlock = _cells[column, trgRow];
 
-              if (image.color.a > 0)
+              _cells[column, trgRow] = curBlock;
+              _cells[column, curRow] = lowBlock;
+
+              var targetPosition = curBlock.transform.position;
+              var lowerPosition = lowBlock.transform.position;
+
+              curBlock.GetComponent<BlockMover>().TargetPosition = lowerPosition;
+              lowBlock.GetComponent<BlockMover>().TargetPosition = targetPosition;
+              
+              trgRow = curRow;
+
+              if (curRow == GridHeight - 1)
               {
-                var block = Instantiate(FallingBlock, image.transform.position, Quaternion.identity) as GameObject;
-                if (block)
-                {
-                  block.transform.SetParent(GameObject.Find("Canvas").transform, true);
-                  block.transform.localScale = Vector3.one;
-                  block.GetComponent<Image>().sprite = image.sprite;
-                  block.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
-                  block.GetComponent<FallingBlockController>().enabled = true;
-
-                  _blockCount++;
-                }
-
-                _cells[trgRow, column].sprite = image.sprite;
-
-                trgRow = curRow;
-                //image.CrossFadeAlpha(0.0f, 0.0f, false);
+                match.GetComponent<SpriteRenderer>().enabled = true;
+                var blockMover = curBlock.GetComponent<BlockMover>();
+                blockMover.enabled = false;
+                curBlock.transform.position += Vector3.up;
+                blockMover.enabled = true;
+                curBlock.enabled = true;
               }
+              yield return new WaitForSeconds(0.05f);
             }
 
-            var finalSprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
-            var finalBlock = Instantiate(FallingBlock, _cells[trgRow, column].transform.position + new Vector3(0.0f, 0.9f, 0.0f), Quaternion.identity) as GameObject;
-            if (finalBlock)
-            {
-              finalBlock.transform.SetParent(GameObject.Find("Canvas").transform, true);
-              finalBlock.transform.localScale = Vector3.one;
-              finalBlock.GetComponent<Image>().sprite = finalSprite;
-              finalBlock.GetComponent<FallingBlockController>().TargetPosition = _cells[trgRow, column].transform.position;
-              finalBlock.GetComponent<FallingBlockController>().enabled = true;
-
-              _blockCount++;
-            }
-
-            _cells[trgRow, column].sprite = finalSprite;
           }
-
-//          var fallingBlocksExist = true;
-//          while (fallingBlocksExist)
-//          {
-//            fallingBlocksExist = FindObjectsOfType<FallingBlockController>().Length > 0;
-//
-//            yield return null;
-//          }
-
-          while (_blockCount > 0)
-          {
-            yield return null;
-          }
-
-          for (int x = 0; x < GridWidth; x++)
-          {
-            for (int y = 0; y < GridHeight; y++)
-            {
-              //_cells[x, y].CrossFadeAlpha(1.0f, 0.0f, false);
-            }
-          }
-
+          
           yield return null;
         }
         else
         {
-          yield break;          
+          yield break;
         }
 
         yield return null;
-      }      
+      }
     }
-
-    private int _blockCount;
-
+    
     private void ReplaceAllBlocks()
     {
       for (int x = 0; x < GridWidth; x++)
@@ -321,7 +287,7 @@
           var index = CurrentSprites.IndexOf(_cells[x, y].sprite);
 
           var sprite = HiddenSprites[index];
-          _cells[x, y].gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
+          _cells[x, y].sprite = sprite;
           _cells[x, y].gameObject.GetComponent<Animation>().Play();
         }
       }
@@ -354,7 +320,7 @@
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (matches.Count > 0)
+        if (matches.Count > 2)
         {
           return matches;
         }
@@ -371,7 +337,7 @@
           .TakeMatches((item1, item2) => item1.sprite == item2.sprite)
           .ToList();
 
-        if (matches.Count > 0)
+        if (matches.Count > 2)
         {
           return matches;
         }
