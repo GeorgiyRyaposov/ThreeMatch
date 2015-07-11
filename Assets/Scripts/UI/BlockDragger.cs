@@ -46,13 +46,16 @@ namespace Assets.Scripts.UI
       _dragging = false;
       _spriteRenderer.sortingOrder = 0;
       _collider.enabled = false;
-      var hit = Physics2D.Raycast(transform.position, Vector2.zero);
+      var hit = Physics2D.Raycast(transform.position, Vector3.down, 10.0f);
+      Debug.DrawRay(transform.position, Vector3.down, Color.red, 2.0f);
       _collider.enabled = true;
 
       if (hit.collider == null)
       {
+        
         return;
       }
+      //hit.collider.GetComponent<SpriteRenderer>().color = Color.red;
 
       StartCoroutine(_gridController.TrySwap(_startPosition, gameObject, hit.collider.gameObject));
     }

@@ -86,21 +86,36 @@
 
     public IEnumerator TrySwap(Vector3 startPosition, GameObject draggableBlock, GameObject swappingBlock)
     {
-      var cellIndex = GetCell(swappingBlock);
+      var swapCellIndex = GetCell(swappingBlock);
+      var swapCellX = (int)swapCellIndex.x;
+      var swapCellY = (int)swapCellIndex.y;
+
+      var dragCellIndex = GetCell(draggableBlock);
+      var swappingTransformPosition = swappingBlock.GetComponent<Transform>().position;
+
+      var draggableBlockMover = draggableBlock.GetComponent<BlockMover>();
+      var swappingBlockMover = swappingBlock.GetComponent<BlockMover>();
+
+      draggableBlockMover.TargetPosition = swappingTransformPosition;
+      swappingBlockMover.TargetPosition = startPosition;
+      yield return new WaitForSeconds(0.5f);
+
+      _cells[swapCellX, swapCellY] = draggableBlock.GetComponent<SpriteRenderer>();
+      _cells[(int)dragCellIndex.x, (int)dragCellIndex.y] = swappingBlock.GetComponent<SpriteRenderer>();
+
       var matchingSprite = draggableBlock.GetComponent<SpriteRenderer>().sprite.name;
       var matches = new List<GameObject> { draggableBlock };
       var matchesByX = new List<GameObject>();
       var matchesByY = new List<GameObject>();
       var matchIndexes = new List<Index>();
-      var cellX = (int)cellIndex.x;
-      var cellY = (int)cellIndex.y;
+      
 
-      for (int x = cellX; x < GridHeight; x++)
+      for (int x = swapCellX+1; x < GridHeight; x++)
       {
-        if(_cells[x, cellY].sprite.name == matchingSprite)
+        if(_cells[x, swapCellY].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(x, cellY));
-          matchesByX.Add(_cells[x, cellY].gameObject);
+          matchIndexes.Add(new Index(x, swapCellY));
+          matchesByX.Add(_cells[x, swapCellY].gameObject);
         }
         else
         {
@@ -108,12 +123,12 @@
         }
       }
 
-      for (int x = cellX; x >= 0; x--)
+      for (int x = swapCellX-1; x >= 0; x--)
       {
-        if (_cells[x, cellY].sprite.name == matchingSprite)
+        if (_cells[x, swapCellY].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(x, cellY));
-          matchesByX.Add(_cells[x, cellY].gameObject);
+          matchIndexes.Add(new Index(x, swapCellY));
+          matchesByX.Add(_cells[x, swapCellY].gameObject);
         }
         else
         {
@@ -126,12 +141,12 @@
         matches.AddRange(matchesByX);
       }
 
-      for (int y = cellY; y < GridWidth; y++)
+      for (int y = swapCellY+1; y < GridWidth; y++)
       {
-        if (_cells[cellX, y].sprite.name == matchingSprite)
+        if (_cells[swapCellX, y].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(cellX, y));
-          matchesByY.Add(_cells[cellX, y].gameObject);
+          matchIndexes.Add(new Index(swapCellX, y));
+          matchesByY.Add(_cells[swapCellX, y].gameObject);
         }
         else
         {
@@ -139,12 +154,12 @@
         }
       }
 
-      for (int y = cellY; y >= 0; y--)
+      for (int y = swapCellY-1; y >= 0; y--)
       {
-        if (_cells[cellX, y].sprite.name == matchingSprite)
+        if (_cells[swapCellX, y].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(cellX, y));
-          matchesByY.Add(_cells[cellX, y].gameObject);
+          matchIndexes.Add(new Index(swapCellX, y));
+          matchesByY.Add(_cells[swapCellX, y].gameObject);
         }
         else
         {
@@ -158,25 +173,25 @@
       }
 
       //not enough matches, return block 
-      Debug.Log("matches: " + matches.Count);
       if (matches.Count < 3)
       {
-        draggableBlock.GetComponent<BlockMover>().TargetPosition = startPosition;
+        _cells[swapCellX, swapCellY] = swappingBlock.GetComponent<SpriteRenderer>();
+        _cells[(int)dragCellIndex.x, (int)dragCellIndex.y] = draggableBlock.GetComponent<SpriteRenderer>();
+        
+        draggableBlockMover.TargetPosition = startPosition;
+        swappingBlockMover.TargetPosition = swappingTransformPosition;
         yield return new WaitForSeconds(1.0f);
         yield break;
       }
 
-      var swappingTransform = swappingBlock.GetComponent<Transform>();
+      foreach (var match in matches)
+      {
+        match.GetComponent<SpriteRenderer>().color = Color.red;
+      }
 
-      var draggableBlockMover = draggableBlock.GetComponent<BlockMover>();
-      var swappingBlockMover = swappingBlock.GetComponent<BlockMover>();
+      
 
-      draggableBlockMover.TargetPosition = swappingTransform.position;
-      swappingBlockMover.TargetPosition = startPosition;
-
-      var swapCellIndex = GetCell(swappingBlock);
-      _cells[cellX, cellY] = swappingBlock.GetComponent<SpriteRenderer>();
-      _cells[(int)swapCellIndex.x, (int)swapCellIndex.y] = draggableBlock.GetComponent<SpriteRenderer>();
+      
     }
 
     class Index
