@@ -11,6 +11,7 @@
   public class GridController : MonoBehaviour
   {
     public GameObject Slot;
+    public GameObject ColumnGrouper;
     public List<Sprite> DaylightSprites;
     public List<Sprite> DarknessSprites;
 
@@ -21,15 +22,13 @@
     private readonly Vector3[,] _defaultPositions = new Vector3[GridWidth, GridHeight];
     private StoreController _storeController;
     private bool _isDaylight = true;
-
     protected void Awake()
     {
       _storeController = FindObjectOfType<StoreController>();
       
-
       Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
     }
-
+    
     protected void Start()
     {
       for (int x = 0; x < GridWidth; x++)
@@ -213,59 +212,69 @@
             match.GetComponent<SpriteRenderer>().enabled = false;
             match.GetComponent<SpriteRenderer>().sprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
 
-            var cell = GetCell(match.gameObject);
-            var column = (int)cell.x;
-            var trgRow = (int)cell.y;
-
-            if (trgRow == GridHeight - 1)
-            {
-              RefreshTopMatchedBlock(match.gameObject);
-              continue;
-            }
-            
-            for (int curRow = trgRow + 1; curRow < GridHeight; curRow++)
-            {
-              var curBlock = _cells[column, curRow];
-              var lowBlock = _cells[column, trgRow];
-
-              _cells[column, trgRow] = curBlock;
-              _cells[column, curRow] = lowBlock;
-
-              var targetPosition = _defaultPositions[column, curRow];
-              var lowerPosition = _defaultPositions[column, trgRow];
-
-              curBlock.GetComponent<BlockMover>().TargetPosition = lowerPosition;
-              lowBlock.GetComponent<BlockMover>().TargetPosition = targetPosition;
-              
-              trgRow = curRow;
-
-              if (curRow == GridHeight - 1)
-              {
-                RefreshTopMatchedBlock(match.gameObject);
-              }
-              yield return new WaitForSeconds(0.005f);
-            }
-
+            MoveColumn(match);
+            RefreshTopMatchedBlock(match.gameObject);
           }
-          
-          yield return null;
+
+          yield return new WaitForSeconds(0.3f);
         }
         else
         {
           yield break;
         }
 
+        yield return new WaitForSeconds(0.5f);
         yield return null;
       }
     }
 
+    private void MoveColumn(SpriteRenderer match)
+    {
+      var cell = GetCell(match.gameObject);
+      var column = (int) cell.x;
+      var trgRow = (int) cell.y;
+
+      var columnGrouper = Instantiate(ColumnGrouper, _defaultPositions[column, trgRow], Quaternion.identity) as GameObject;
+      columnGrouper.transform.SetParent(transform);
+
+      for (int curRow = trgRow + 1; curRow < GridHeight; curRow++)
+      {
+        var curBlock = _cells[column, curRow];
+        var lowBlock = _cells[column, trgRow];
+
+        _cells[column, trgRow] = curBlock;
+        _cells[column, curRow] = lowBlock;
+
+        var targetPosition = _defaultPositions[column, curRow];
+        var lowerPosition = _defaultPositions[column, trgRow];
+
+        curBlock.transform.SetParent(columnGrouper.transform);
+
+        curBlock.GetComponent<BlockMover>().TargetPosition = lowerPosition;
+        lowBlock.GetComponent<BlockMover>().TargetPosition = targetPosition;
+
+        trgRow = curRow;
+      }
+
+      columnGrouper.GetComponent<BlockMover>().TargetPosition = _defaultPositions[column, (int) cell.y];
+
+      
+      //RefreshTopMatchedBlock(match.gameObject);
+      for (int i = 0; i < columnGrouper.transform.childCount; i++)
+      {
+        var child = columnGrouper.transform.GetChild(i);
+        child.SetParent(transform);
+      }
+      //Destroy(columnGrouper.gameObject, 10.0f);
+    }
+
     private void RefreshTopMatchedBlock(GameObject match)
     {
-      match.GetComponent<SpriteRenderer>().enabled = true;
       var blockMover = match.GetComponent<BlockMover>();
       blockMover.enabled = false;
       match.transform.position += Vector3.up*3;
       blockMover.enabled = true;
+      match.GetComponent<SpriteRenderer>().enabled = true;
     }
     
     private void ReplaceAllBlocks()
