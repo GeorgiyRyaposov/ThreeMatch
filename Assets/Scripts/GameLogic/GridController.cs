@@ -224,12 +224,8 @@
 
             if (trgRow == GridHeight - 1)
             {
-              match.GetComponent<SpriteRenderer>().enabled = true;
-              var curBlock = _cells[column, trgRow];
-              var blockMover = curBlock.GetComponent<BlockMover>();
-              blockMover.enabled = false;
-              curBlock.transform.position += Vector3.up;
-              blockMover.enabled = true;
+              RefreshTopMatchedBlock(match.gameObject);
+              continue;
             }
             
             for (int curRow = trgRow + 1; curRow < GridHeight; curRow++)
@@ -250,14 +246,9 @@
 
               if (curRow == GridHeight - 1)
               {
-                match.GetComponent<SpriteRenderer>().enabled = true;
-                var blockMover = curBlock.GetComponent<BlockMover>();
-                blockMover.enabled = false;
-                curBlock.transform.position += Vector3.up;
-                blockMover.enabled = true;
-                curBlock.enabled = true;
+                RefreshTopMatchedBlock(match.gameObject);
               }
-              yield return new WaitForSeconds(0.05f);
+              yield return new WaitForSeconds(0.15f);
             }
 
           }
@@ -271,6 +262,15 @@
 
         yield return null;
       }
+    }
+
+    private void RefreshTopMatchedBlock(GameObject match)
+    {
+      match.GetComponent<SpriteRenderer>().enabled = true;
+      var blockMover = match.GetComponent<BlockMover>();
+      blockMover.enabled = false;
+      match.transform.position += Vector3.up*3;
+      blockMover.enabled = true;
     }
     
     private void ReplaceAllBlocks()

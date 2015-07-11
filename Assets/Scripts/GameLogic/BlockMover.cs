@@ -9,14 +9,7 @@ namespace Assets.Scripts.GameLogic
   
     protected void Update()
     {
-      transform.position = Vector3.Lerp(transform.position, TargetPosition, 50.0f * Time.deltaTime);
-
-      //if (Vector2.Distance(transform.position, TargetPosition) < float.Epsilon)
-      //{
-      //  Messenger.Instance.SendMessage("BlockDestroyed");
-
-      //  Destroy(this.gameObject);
-      //}
+      transform.position = Vector3.Lerp(transform.position, TargetPosition, 5.0f * Time.deltaTime);
     }
   }
 }
