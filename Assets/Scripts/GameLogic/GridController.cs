@@ -101,14 +101,12 @@
       var matches = new List<GameObject> { draggableBlock };
       var matchesByX = new List<GameObject>();
       var matchesByY = new List<GameObject>();
-      var matchIndexes = new List<Index>();
       
 
       for (int x = swapCellX+1; x < GridHeight; x++)
       {
         if(_cells[x, swapCellY].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(x, swapCellY));
           matchesByX.Add(_cells[x, swapCellY].gameObject);
         }
         else
@@ -121,7 +119,6 @@
       {
         if (_cells[x, swapCellY].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(x, swapCellY));
           matchesByX.Add(_cells[x, swapCellY].gameObject);
         }
         else
@@ -139,7 +136,6 @@
       {
         if (_cells[swapCellX, y].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(swapCellX, y));
           matchesByY.Add(_cells[swapCellX, y].gameObject);
         }
         else
@@ -152,7 +148,6 @@
       {
         if (_cells[swapCellX, y].sprite.name == matchingSprite)
         {
-          matchIndexes.Add(new Index(swapCellX, y));
           matchesByY.Add(_cells[swapCellX, y].gameObject);
         }
         else
@@ -248,7 +243,7 @@
               {
                 RefreshTopMatchedBlock(match.gameObject);
               }
-              yield return new WaitForSeconds(0.15f);
+              yield return new WaitForSeconds(0.005f);
             }
 
           }
