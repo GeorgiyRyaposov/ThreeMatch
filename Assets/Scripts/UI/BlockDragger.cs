@@ -49,7 +49,7 @@ namespace Assets.Scripts.UI
       var hit = Physics2D.Raycast(transform.position, Vector3.down, 5.0f);
       _collider.enabled = true;
 
-      if (hit.collider == null || hit.collider.GetComponent<BlockMover>() == null)
+      if (hit.collider == null || hit.collider.GetComponent<BlockMover>() == null || !_gridController.CanFlip(gameObject, hit.collider.gameObject))
       {
         StartCoroutine(GridController.Move(gameObject, _startPosition));
         

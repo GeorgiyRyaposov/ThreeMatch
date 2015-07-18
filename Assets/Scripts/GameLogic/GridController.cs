@@ -119,10 +119,10 @@
       yield return new WaitForSeconds(SwapTime);
     }
 
-//    public bool CanFlip(GameObject first, GameObject second)
-//    {
-//      return !(Vector2.Distance(GetCell(first), GetCell(second)) > 1);
-//    }
+    public bool CanFlip(GameObject first, GameObject second)
+    {
+      return !(Vector2.Distance(_cells.IndexOf(first).ToVector2(), _cells.IndexOf(second).ToVector2()) > 1);
+    }
 
     public void FixGrid()
     {
@@ -267,5 +267,10 @@
     }
     public int X { get; private set; }
     public int Y { get; private set; }
+
+    public Vector2 ToVector2()
+    {
+      return new Vector2(X, Y);
+    }
   }
 }
