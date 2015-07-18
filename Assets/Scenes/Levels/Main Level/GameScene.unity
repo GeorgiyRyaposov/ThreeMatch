@@ -513,7 +513,7 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: .5, y: .5}
   m_AnchorMax: {x: .5, y: .5}
-  m_AnchoredPosition: {x: -354, y: 161}
+  m_AnchoredPosition: {x: -320, y: 161}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &577586780
@@ -713,7 +713,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Slot: {fileID: 152520, guid: ee2428734b1eff04592b9fe8d35c995a, type: 2}
-  ColumnMover: {fileID: 139514, guid: 78d1000495e60924eb09f75da664db87, type: 2}
+  ColumnGrouper: {fileID: 136566, guid: ad7164eb2a6084543bb5df49f4e77ca3, type: 2}
   DaylightSprites:
   - {fileID: 21300000, guid: 35be66b158605b646abf323ad6c76c9e, type: 3}
   - {fileID: 21300000, guid: 6eca75c2550b5664d83feb44ea0d73bc, type: 3}

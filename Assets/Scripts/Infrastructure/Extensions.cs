@@ -1,11 +1,13 @@
-﻿namespace Assets.Scripts.Infrastructure
+﻿using UnityEngine;
+
+namespace Assets.Scripts.Infrastructure
 {
   using System;
   using System.Collections.Generic;
   using System.Linq;
-  using UnityEngine;
+  using GameLogic;
 
-    public static class Extensions
+  public static class Extensions
   {
     public static IList<T> FindMatches<T>(this IList<T> source, Func<T, T, bool> equal)
     {
@@ -32,7 +34,7 @@
       }).ToList();
     }
 
-    public static Vector2 IndexOf<T>(this T[,] matrix, T value)
+    public static Index IndexOf<T>(this T[,] matrix, GameObject value)
     {
         int w = matrix.GetLength(0); // width
         int h = matrix.GetLength(1); // height
@@ -41,12 +43,12 @@
         {
             for (int y = 0; y < h; ++y)
             {
-                if (matrix[x, y].Equals(value))
-                    return new Vector2(x, y);
+                if (matrix[x, y].Equals(value.GetComponent<T>()))
+                  return new Index(x, y);
             }
         }
 
-        return Vector2.zero;
+        return new Index(0,0);
     }
 
   }

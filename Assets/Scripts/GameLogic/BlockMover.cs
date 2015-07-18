@@ -1,25 +1,20 @@
-﻿using UnityEngine;
-
-namespace Assets.Scripts.GameLogic
+﻿namespace Assets.Scripts.GameLogic
 {
+  using UnityEngine;
   public class BlockMover : MonoBehaviour
   {
     [HideInInspector]
     public Vector3 TargetPosition;
-  
+    private Vector3 _velocity = Vector3.zero;
+    private const float SmoothTime = 0.2F;
+
     protected void Update()
     {
-      transform.position = Vector3.Lerp(transform.position, TargetPosition, 5.0f * Time.deltaTime);
-    }
+      transform.position = Vector3.SmoothDamp(transform.position, TargetPosition, ref _velocity, SmoothTime);
 
-    void OnDestroy()
-    {
-      var parent = transform.GetComponentInParent<Transform>();
-      for (int i = 0; i < transform.childCount; i++)
-      {
-        var child = transform.GetChild(i);
-        child.SetParent(parent);
-      }
+      if (transform.position == TargetPosition)
+        this.enabled = false;
     }
+    
   }
 }

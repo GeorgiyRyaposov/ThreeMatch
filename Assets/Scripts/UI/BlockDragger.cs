@@ -15,13 +15,12 @@ namespace Assets.Scripts.UI
     private Vector3 _startPosition;
     private BoxCollider2D _collider;
     private SpriteRenderer _spriteRenderer;
-    private BlockMover _blockMover;
+
     void Awake()
     {
       _gridController = FindObjectOfType<GridController>();
       _collider = GetComponent<BoxCollider2D>();
       _spriteRenderer = GetComponent<SpriteRenderer>();
-      _blockMover = GetComponent<BlockMover>();
     }
 
     void Update()
@@ -40,7 +39,6 @@ namespace Assets.Scripts.UI
       _dragging = true;
       _spriteRenderer.sortingOrder = 1;
       _startPosition = transform.position;
-      _blockMover.enabled = false;
     }
 
     void OnMouseUp()
@@ -53,12 +51,11 @@ namespace Assets.Scripts.UI
 
       if (hit.collider == null || hit.collider.GetComponent<BlockMover>() == null)
       {
-        _blockMover.TargetPosition = _startPosition;
-        _blockMover.enabled = true;
+        StartCoroutine(GridController.Move(gameObject, _startPosition));
+        
         return;
       }
 
-      _blockMover.enabled = true;
       StartCoroutine(_gridController.TrySwap(_startPosition, gameObject, hit.collider.gameObject));
     }
   }

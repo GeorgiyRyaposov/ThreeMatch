@@ -6,6 +6,7 @@ TagManager:
   tags:
   - UserInterface
   - GridCamera
+  - ColumnGrouper
   layers:
   - Default
   - TransparentFX
