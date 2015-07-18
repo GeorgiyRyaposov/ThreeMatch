@@ -216,6 +216,7 @@
 
     private List<SpriteRenderer> FindMatch()
     {
+      var totalMatches = new List<SpriteRenderer>();
       for (int x = 0; x < Columns; x++)
       {
         var column = Enumerable.Range(0, Rows)
@@ -229,7 +230,7 @@
 
         if (matches.Count > 2)
         {
-          return matches;
+          totalMatches.AddRange(matches);
         }
       }
 
@@ -246,10 +247,13 @@
 
         if (matches.Count > 2)
         {
-          return matches;
+          totalMatches.AddRange(matches);
         }
       }
-
+      if (totalMatches.Count > 2)
+      {
+        return totalMatches;
+      }
       return Enumerable.Empty<SpriteRenderer>().ToList();
     }
   }
