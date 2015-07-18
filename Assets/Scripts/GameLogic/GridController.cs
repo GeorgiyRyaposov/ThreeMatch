@@ -23,11 +23,12 @@
     private StoreController _storeController;
     private bool _isDaylight = true;
     private const float SwapTime = 0.5f;
+    private GameObject _mouseBlocker;
 
     protected void Awake()
     {
       _storeController = FindObjectOfType<StoreController>();
-      
+      _mouseBlocker = GameObject.FindGameObjectWithTag("MouseBlocker");
       Messenger.Instance.AddHandler("ReplaceBlocks", ReplaceAllBlocks);
     }
     
@@ -73,6 +74,7 @@
     
     public IEnumerator TrySwap(Vector3 startPosition, GameObject draggableBlock, GameObject swappingBlock)
     {
+      _mouseBlocker.gameObject.SetActive(true);
       SwapBlocks(draggableBlock, swappingBlock);
       yield return new WaitForSeconds(SwapTime);
       var matches = FindMatch();
@@ -82,6 +84,7 @@
       {
         SwapBlocks(swappingBlock, draggableBlock);
         yield return new WaitForSeconds(SwapTime);
+        _mouseBlocker.gameObject.SetActive(false);
         yield break;
       }
       
@@ -159,6 +162,7 @@
         }
 
         yield return new WaitForSeconds(SwapTime);
+        _mouseBlocker.gameObject.SetActive(false);
         yield return null;
       }
     }

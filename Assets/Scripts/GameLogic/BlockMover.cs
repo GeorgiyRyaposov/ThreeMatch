@@ -13,7 +13,9 @@
       transform.position = Vector3.SmoothDamp(transform.position, TargetPosition, ref _velocity, SmoothTime);
 
       if (transform.position == TargetPosition)
+      {
         this.enabled = false;
+      }
     }
     
   }
