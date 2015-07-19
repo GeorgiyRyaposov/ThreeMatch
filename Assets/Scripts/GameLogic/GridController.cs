@@ -145,13 +145,13 @@
           
           foreach (var match in matches)
           {
-            match.GetComponent<SpriteRenderer>().enabled = false;
-            match.GetComponent<SpriteRenderer>().sprite = CurrentSprites[Random.Range(0, CurrentSprites.Count)];
+            match.GetComponent<Animation>().Play("CollapseBlock");
+            yield return new WaitForSeconds(0.2f);
 
             var matchIndex = _cells.IndexOf(match.gameObject);
 
             MoveColumn(match);
-            MoveBlockOnTop(match.gameObject, matchIndex.X);
+            AddNewBlockOnTop(matchIndex.X);
           }
 
 //          yield return new WaitForSeconds(SwapTime);
@@ -182,13 +182,13 @@
       }
     }
 
-    private void MoveBlockOnTop(GameObject match, int column)
+    private void AddNewBlockOnTop(int column)
     {
       var topPosition = _defaultPositions[column, Rows-1];
-
-      match.transform.position = topPosition + Vector3.up*3;
-      StartCoroutine(Move(match, topPosition));
-      match.GetComponent<SpriteRenderer>().enabled = true;
+      var slot = InitBlock(column, Rows - 1, CurrentSprites[Random.Range(0, CurrentSprites.Count)]);
+      _cells[column, Rows - 1] = slot.GetComponent<SpriteRenderer>();
+      slot.transform.position = topPosition + Vector3.up * 2;
+      StartCoroutine(Move(slot, topPosition));
     }
     
     private void ReplaceAllBlocks()
@@ -201,10 +201,11 @@
 
           var sprite = HiddenSprites[index]; 
           _cells[x, y].gameObject.GetComponent<BlockController>().ReplacementSprite = sprite;
-          _cells[x, y].gameObject.GetComponent<Animation>().Play();
+//          _animator.SetTrigger("DayTimeChanged");
+          _cells[x, y].gameObject.GetComponent<Animation>().Play("DestroyBlock");
         }
       }
-
+      
       _isDaylight = !_isDaylight;
     }
 

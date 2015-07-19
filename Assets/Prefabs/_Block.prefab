@@ -63,6 +63,7 @@ Animation:
   m_Animation: {fileID: 7400000, guid: 35a66270b24e22240afd6e6e2b675264, type: 2}
   m_Animations:
   - {fileID: 7400000, guid: 35a66270b24e22240afd6e6e2b675264, type: 2}
+  - {fileID: 7400000, guid: a3f1c05a3c6be624cb1e98af8c1220e1, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
@@ -160,7 +161,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 0}
       propertyPath: m_Animations.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Animation
@@ -184,6 +185,18 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 0}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: m_Animations.Array.data[1]
+      value: 
+      objectReference: {fileID: 7400000, guid: a3f1c05a3c6be624cb1e98af8c1220e1, type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 2f8113f2af8e1af4fbd69127fdf2b3c0, type: 2}
+    - target: {fileID: 0}
+      propertyPath: m_ApplyRootMotion
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

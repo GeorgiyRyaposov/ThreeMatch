@@ -25,5 +25,10 @@
         ReplacementSprite = null;
       }    
     }
+
+    public void Destroy()
+    {
+      Destroy(gameObject);
+    }
   }
 }
